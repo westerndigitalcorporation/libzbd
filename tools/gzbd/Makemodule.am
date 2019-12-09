@@ -1,0 +1,10 @@
+
+bin_PROGRAMS += gzbd
+gzbd_SOURCES = \
+	tools/gzbd/gzbd.c \
+	tools/gzbd/gzbd_if.c \
+	tools/gzbd/gzbd_if_dev.c \
+	tools/gzbd/gzbd.h
+
+gzbd_CFLAGS = $(CFLAGS) $(GTK_CFLAGS)
+gzbd_LDADD = $(libzbd_ldadd) $(GTK_LIBS)

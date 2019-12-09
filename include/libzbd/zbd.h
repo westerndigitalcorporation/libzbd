@@ -1,0 +1,463 @@
+/*
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ *
+ * Copyright (c) 2020 Western Digital Corporation or its affiliates.
+ *
+ * Authors: Damien Le Moal (damien.lemoal@wdc.com)
+ *	    Ting Yao <tingyao@hust.edu.cn>
+ */
+
+#ifndef _LIBZBD_H_
+#define _LIBZBD_H_
+
+#define _LARGEFILE64_SOURCE
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <errno.h>
+#include <linux/blkzoned.h>
+
+/**
+ * @brief Library log levels
+ */
+enum zbd_log_level {
+	ZBD_LOG_NONE = 0,	/* Disable all messages */
+	ZBD_LOG_ERROR,		/* Output details about errors */
+	ZBD_LOG_DEBUG,		/* Debug-level messages */
+};
+
+/**
+ * @brief Set the library log level
+ * @param[in] log_level	Library log level
+ *
+ * Set the library log level using the level name specified by \a log_level.
+ * Log level are incremental: each level includes the levels preceding it.
+ * Valid log level names are:
+ * "none"    : Silent operation (no messages)
+ * "warning" : Print device level standard compliance problems
+ * "error"   : Print messages related to unexpected errors
+ * "info"    : Print normal information messages
+ * "debug"   : Verbose output decribing internally executed commands
+ * The default level is "warning".
+ */
+extern void zbd_set_log_level(enum zbd_log_level);
+
+#define ZBD_VENDOR_ID_LENGTH  32
+
+/**
+ * Block device zone models.
+ */
+enum zbd_dev_model {
+        ZBD_DM_HOST_MANAGED = 1,
+	ZBD_DM_HOST_AWARE,
+        ZBD_DM_NOT_ZONED,
+};
+
+/**
+ * @brief Device information data structure
+ *
+ * Provide information on a device open using the \a zbd_open function.
+ */
+struct zbd_info {
+
+	/**
+	 * Device zone model.
+	 */
+	enum zbd_dev_model	model;
+
+	/**
+	 * Device vendor, model and firmware revision string.
+	 */
+	char			vendor_id[ZBD_VENDOR_ID_LENGTH];
+
+	/**
+	 * Total number of 512B sectors of the device.
+	 */
+	unsigned long long	nr_sectors;
+
+	/**
+	 * Size in bytes of the device logical blocks.
+	 */
+	size_t			lblock_size;
+
+	/**
+	 * Total number of logical blocks of the device.
+	 */
+	unsigned long long	nr_lblocks;
+
+	/**
+	 * Size in bytes of the device physical blocks.
+	 */
+	size_t			pblock_size;
+
+	/**
+	 * Total number of physical blocks of the device.
+	 */
+	unsigned long long	nr_pblocks;
+
+	/**
+	 * Optimal maximum number of explicitly open sequential write
+	 * preferred zones (host-aware device models only). A value
+	 * of "-1" means that the drive did not report any value.
+	 */
+	unsigned int		nr_open_seq_pref;
+
+	/**
+	 * Optimal maximum number of sequential write preferred zones
+	 * with the ZBD_ZA_NON_SEQ zone attribute set
+	 * (host-aware device models only). A value of "-1" means that
+	 * the drive did not report any value.
+	 */
+	unsigned int		nr_non_seq_write_seq_pref;
+
+	/**
+	 * Maximum number of explicitly open sequential write required
+	 * zones (host-managed device models only). A value of "-1" means
+	 * that there is no restrictions on the number of open zones.
+	 */
+	unsigned int		max_nr_open_seq_req;
+
+	/**
+	 * Size in bytes of a zone.
+	 */
+	size_t			zone_size;
+
+	/**
+	 * Size in 512B sectors of a zone.
+	 */
+	size_t			zone_sectors;
+
+	/**
+	 * Number of zones.
+	 */
+	unsigned int		nr_zones;
+
+};
+
+/**
+ * @brief Test if a device is a zoned block device
+ * @param[in] filename	Path to the device file
+ * @param[in] info	Address where to store the device information
+ *
+ * Test if a device supports the ZBD/ZAC command set. If \a fake is false,
+ * only test physical devices. Otherwise, also test regular files and
+ * regular block devices that may be in use with the fake backend driver
+ * to create an emulated host-managed zoned block device.
+ * If \a info is not NULL and the device is identified as a zoned
+ * block device, the device information is returned at the address
+ * specified by \a info.
+ *
+ * @return Returns a negative error code if the device test failed.
+ * 1 is returned if the device is identified as a zoned zoned block device.
+ * Otherwise, 0 is returned.
+ */
+extern int zbd_device_is_zoned(const char *filename);
+
+
+/**
+ * @brief Open a ZBD device
+ * @param[in] filename	Path to a device file
+ * @param[in] flags	Device file open flags
+ * @param[out] info	Device information
+ *
+ * Opens the device specified by \a filename, and returns a file descriptor
+ * number similarly to the regular open() system call. If @info is non-null,
+ * information on the device is returned at the specified address.
+ *
+ * @return If the device is not a zoned block device, -ENXIO is returned.
+ * Any other error code returned by open(2) can be returned as well.
+ */
+extern int zbd_open(const char *filename, int flags, struct zbd_info *info);
+
+/**
+ * @brief Close a ZBD device
+ * @param[in] fd	File descriptor obtained with \a zbd_open
+ *
+ * Performs the equivalent to close(2) for a zoned block device open
+ * using \a zbd_open.
+ */
+extern void zbd_close(int fd);
+
+/**
+ * @brief Get a device information
+ * @param[in] fd	File descriptor obtained with \a zbd_open
+ * @param[in] info	Address of the information structure to fill
+ *
+ * Get information about an open device. The \a info parameter is used to
+ * return a device information. \a info must be allocated by the caller.
+ */
+extern int zbd_get_info(int fd, struct zbd_info *info);
+
+/**
+ * @brief Reporting options definitions
+ *
+ * Used to filter the zone information returned by the execution of a
+ * REPORT ZONES command. Filtering is based on the value of the reporting
+ * option and on the condition of the zones at the time of the execution of
+ * the REPORT ZONES command.
+ *
+ * ZBD_RO_PARTIAL is not a filter: this reporting option can be combined
+ * (or'ed) with any other filter option to limit the number of reported
+ * zone information to the size of the REPORT ZONES command buffer.
+ */
+enum zbd_report_option {
+	/* Report all zones */
+	ZBD_RO_ALL		= 0x00,
+
+	/* Report only empty zones */
+	ZBD_RO_EMPTY		= 0x01,
+
+	/* Report only implicitly open zones */
+	 ZBD_RO_IMP_OPEN	= 0x02,
+
+	/* Report only explicitly open zones */
+	ZBD_RO_EXP_OPEN		= 0x03,
+
+	/* Report only closed zones */
+	ZBD_RO_CLOSED		= 0x04,
+
+	/* Report only full zones */
+	ZBD_RO_FULL		= 0x05,
+
+	/* Report only read-only zones */
+	ZBD_RO_RDONLY		= 0x06,
+
+	/* Report only offline zones */
+	ZBD_RO_OFFLINE		= 0x07,
+
+	/* Report only zones with reset recommended flag set */
+	ZBD_RO_RWP_RECOMMENDED	= 0x10,
+
+	/* Report only zones with the non-sequential resource used flag set */
+	ZBD_RO_NON_SEQ		= 0x11,
+
+	/* Report only conventional zones (non-write-pointer zones) */
+	ZBD_RO_NOT_WP		= 0x3f,
+};
+
+/**
+ * @brief Get zone information
+ * @param[in] fd	File descriptor obtained with \a zbd_open
+ * @param[in] ofst	Byte offset from which to report zones
+ * @param[in] len	Maximum length in bytes of the device capacity reported
+ * @param[in] ro	Reporting options
+ * @param[in] zones	Pointer to the array of zone information to fill
+ * @param[out] nr_zones	Number of zones in the array \a zones
+ *
+ * Get zone information of all zones in the range [ofst..ofst+len] and
+ * matching the \a ro option. Return the zone information obtained in the
+ * array \a zones and the number of zones reported at the address specified
+ * by \a nr_zones.
+ * The array \a zones must be allocated by the caller and \a nr_zones
+ * must point to the size of the allocated array (number of zone information
+ * structures in the array). The first zone reported will be the zone
+ * containing or after \a ofst.
+ *
+ * @return Returns 0 on success and -1 otherwise.
+ */
+extern int zbd_report_zones(int fd, off_t ofst, off_t len,
+			    enum zbd_report_option ro,
+			    struct blk_zone *zones, unsigned int *nr_zones);
+
+/**
+ * @brief Get the number of zones matches
+ * @param[in] fd	File descriptor obtained with \a zbd_open
+ * @param[in] ofst	Byte offset from which to report zones
+ * @param[in] len	Maximum length in bytes of the device capacity reported
+ * @param[in] ro	Reporting options
+ * @param[out] nr_zones	The number of matching zones
+ *
+ * Similar to \a zbd_report_zones, but returns only the number of zones that
+ * \a zbd_report_zones would have returned. This is useful to determine the
+ * number of zones of a device to allocate an array of zone information
+ * structures for use with \a zbd_report_zones.
+ *
+ * @return Returns 0 on success and -1 otherwise.
+ */
+static inline int zbd_report_nr_zones(int fd, off_t ofst, off_t len,
+					enum zbd_report_option ro,
+					unsigned int *nr_zones)
+{
+        return zbd_report_zones(fd, ofst, len, ro, NULL, nr_zones);
+}
+
+/**
+ * @brief Get zone information
+ * @param[in] fd	File descriptor obtained with \a zbd_open
+ * @param[in] ofst	Byte offset from which to report zones
+ * @param[in] len	Maximum length in bytes of the device capacity reported
+ * @param[in] ro	Reporting options
+ * @param[out] zones	The array of zone information filled
+ * @param[out] nr_zones	Number of zones in the array \a zones
+ *
+ * Similar to \a zbd_report_zones, but also allocates an appropriatly sized
+ * array of zone information structures and return the address of the array
+ * at the address specified by \a zones. The size of the array allocated and
+ * filled is returned at the address specified by \a nr_zones. Freeing of the
+ * memory used by the array of zone information strcutrues allocated by this
+ * function is the responsability of the caller.
+ *
+ * @return Returns 0 on success and -1 otherwise.
+ * Returns -ENOMEM if memory could not be allocated for \a zones.
+ */
+extern int zbd_list_zones(int fd, off_t ofst, off_t len,
+			  enum zbd_report_option ro,
+			  struct blk_zone **zones, unsigned int *nr_zones);
+
+/**
+ * @brief Zone management operations.
+ */
+enum zbd_zone_op {
+	/**
+	 * Reset zones write pointer.
+	 */
+	ZBD_OP_RESET	= 0x01,
+	/**
+	 * Explicitly open zones.
+	 */
+	ZBD_OP_OPEN	= 0x02,
+	/**
+	 * Close opened zones.
+	 */
+	ZBD_OP_CLOSE	= 0x03,
+	/**
+	 * Transition zones to full state.
+	 */
+	ZBD_OP_FINISH	= 0x04,
+};
+
+/**
+ * @brief Execute an operation on a range of zones
+ * @param[in] fd	File descriptor obtained with \a zbd_open
+ * @param[in] ofst	Byte offset identifying the first zone to operate on
+ * @param[in] len	Maximum length in bytes of all zones to operate on
+ * @param[in] op	The operation to perform
+ *
+ * Exexcute an operation on the range of zones defined by [ofst..ofst+len]
+ * The validity of the operation (reset, open, close or finish) depends on the
+ * type and condition of the target zones.
+ *
+ * @return Returns 0 on success and -1 otherwise.
+ */
+extern int zbd_zones_operation(int fd, enum zbd_zone_op op,
+			       off_t ofst, off_t len);
+
+/**
+ * @brief Reset the write pointer of a range of zones
+ * @param[in] fd	File descriptor obtained with \a zbd_open
+ * @param[in] ofst	Byte offset identifying the first zone to operate on
+ * @param[in] len	Maximum length in bytes of all zones to operate on
+ *
+ * Resets the write pointer of the zones in the range [ofst..ofst+len].
+ *
+ * @return Returns 0 on success and -1 otherwise.
+ */
+static inline int zbd_reset_zones(int fd, off_t ofst, off_t len)
+{
+	return zbd_zones_operation(fd, ZBD_OP_RESET, ofst, len);
+}
+
+/**
+ * @brief Explicitly open a range of zones
+ * @param[in] fd	File descriptor obtained with \a zbd_open
+ * @param[in] ofst	Byte offset identifying the first zone to operate on
+ * @param[in] len	Maximum length in bytes of all zones to operate on
+ *
+ * Explicitly open the zones in the range [ofst..ofst+len].
+ *
+ * @return Returns 0 on success and -1 otherwise.
+ */
+static inline int zbd_open_zones(int fd, off_t ofst, off_t len)
+{
+	return zbd_zones_operation(fd, ZBD_OP_OPEN, ofst, len);
+}
+
+/**
+ * @brief Close a range of zones
+ * @param[in] fd	File descriptor obtained with \a zbd_open
+ * @param[in] ofst	Byte offset identifying the first zone to operate on
+ * @param[in] len	Maximum length in bytes of all zones to operate on
+ *
+ * Close the zones in the range [ofst..ofst+len].
+ *
+ * @return Returns 0 on success and -1 otherwise.
+ */
+static inline int zbd_close_zones(int fd, off_t ofst, off_t len)
+{
+	return zbd_zones_operation(fd, ZBD_OP_CLOSE, ofst, len);
+}
+
+/**
+ * @brief Finish a range of zones
+ * @param[in] fd	File descriptor obtained with \a zbd_open
+ * @param[in] ofst	Byte offset identifying the first zone to operate on
+ * @param[in] len	Maximum length in bytes of all zones to operate on
+ *
+ * Finish the zones in the range [ofst..ofst+len].
+ *
+ * @return Returns 0 on success and -1 otherwise.
+ */
+static inline int zbd_finish_zones(int fd, off_t ofst, off_t len)
+{
+	return zbd_zones_operation(fd, ZBD_OP_FINISH, ofst, len);
+}
+
+/*
+ * Accessors
+ */
+#define zbd_zone_type(z)	((int)(z)->type)
+#define zbd_zone_conventional(z) ((z)->type == BLK_ZONE_TYPE_CONVENTIONAL)
+#define zbd_zone_sequential_req(z) ((z)->type == BLK_ZONE_TYPE_SEQWRITE_REQ)
+#define zbd_zone_sequential_pref(z) ((z)->type == BLK_ZONE_TYPE_SEQWRITE_PREF)
+#define zbd_zone_sequential(z) 	(zbd_zone_sequential_req(z) || zbd_zone_sequential_pref(z))
+#define zbd_zone_condition(z)	((int)(z)->cond)
+#define zbd_zone_not_wp(z)	((z)->cond == BLK_ZONE_COND_NOT_WP)
+#define zbd_zone_empty(z)	((z)->cond == BLK_ZONE_COND_EMPTY)
+#define zbd_zone_imp_open(z)	((z)->cond == BLK_ZONE_COND_IMP_OPEN)
+#define zbd_zone_exp_open(z)	((z)->cond == BLK_ZONE_COND_EXP_OPEN)
+#define zbd_zone_is_open(z)	(zbd_zone_imp_open(z) || \
+				 zbd_zone_exp_open(z))
+#define zbd_zone_closed(z)	((z)->cond == BLK_ZONE_COND_CLOSED)
+#define zbd_zone_full(z)	((z)->cond == BLK_ZONE_COND_FULL)
+#define zbd_zone_rdonly(z)	((z)->cond == BLK_ZONE_COND_READONLY)
+#define zbd_zone_offline(z)	((z)->cond == BLK_ZONE_COND_OFFLINE)
+#define zbd_zone_start(z)	((unsigned long long)(z)->start)
+#define zbd_zone_len(z)		((unsigned long long)(z)->len)
+#define zbd_zone_wp(z)		((unsigned long long)(z)->wp)
+
+/**
+ * @brief Returns a string describing a device zone model
+ * @param[in] model	Device model
+ * @param[in] s		Get abbreviated name
+ *
+ * Return a string (long or abbreviated) describing a device zone model.
+ *
+ * @return Device model string or NULL for an invalid model.
+ */
+const char *zbd_device_model_str(enum zbd_dev_model model, bool s);
+
+/**
+ * @brief Returns a string describing a zone type
+ * @param[in] z		Zone descriptor
+ * @param[in] s		Get abbreviated zone type name
+ *
+ * Return a string (long or abbreviated) describing a zone type.
+ *
+ * @return Zone type string or NULL for an invalid zone type.
+ */
+const char *zbd_zone_type_str(struct blk_zone *z, bool s);
+
+/**
+ * @brief Returns a string describing a zone condition
+ * @param[in] z		Zone descriptor
+ * @param[in] s		Get abbreviated zone condition name
+ *
+ * Return a string (long or abbreviated) describing a zone condition.
+ *
+ * @return Zone type string or NULL for an invalid zone condition.
+ */
+const char *zbd_zone_cond_str(struct blk_zone *z, bool s);
+
+#endif /* _LIBZBD_H_ */

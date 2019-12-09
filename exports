@@ -1,0 +1,16 @@
+ZBD_GLOBAL {
+global:
+	zbd_set_log_level;
+	zbd_device_is_zoned;
+	zbd_open;
+	zbd_close;
+	zbd_get_device_info;
+	zbd_report_zones;
+	zbd_list_zones;
+	zbd_zones_operation;
+	zbd_device_model_str;
+	zbd_zone_type_str;
+	zbd_zone_cond_str;
+local:
+	*;
+};

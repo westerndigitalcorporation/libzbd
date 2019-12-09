@@ -1,0 +1,46 @@
+# Object files
+*.o
+*.lo
+*.obj
+*.elf
+*.la
+*.so
+*.so.*
+*.out
+
+zbd
+!tools/zbd
+gzbd
+!tools/gzbd
+gzbd-viewer
+!tools/gzbd-viewer
+
+# Dependency files
+.depfile
+.depend
+
+# Other
+Thumbs.db
+desktop.ini
+.DS_Store
+*~
+*.txt
+
+# Autotools stuff
+m4/*.m4
+Makefile.in
+aclocal.m4
+autom4te.cache/
+build-aux/
+configure
+include/config.h.in
+Makefile
+config.log
+config.status
+include/config.h
+include/stamp-h1
+.deps
+libtool
+libzbd.pc
+.libs
+.dirstamp

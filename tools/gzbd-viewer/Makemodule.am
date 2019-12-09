@@ -1,0 +1,10 @@
+AM_LDFLAGS = -lm
+
+bin_PROGRAMS += gzbd-viewer
+gzbd_viewer_SOURCES = \
+	tools/gzbd-viewer/gzbd_viewer.c \
+	tools/gzbd-viewer/gzbd_viewer_if.c \
+	tools/gzbd-viewer/gzbd_viewer.h
+
+gzbd_viewer_CFLAGS = $(CFLAGS) $(GTK_CFLAGS)
+gzbd_viewer_LDADD = $(libzbd_ldadd) $(GTK_LIBS)
