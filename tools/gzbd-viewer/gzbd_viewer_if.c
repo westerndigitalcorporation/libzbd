@@ -260,13 +260,34 @@ static gboolean gzv_if_scroll_value_cb(GtkWidget *widget,
 	return TRUE;
 }
 
+static void gzv_if_draw_legend(char *str, const GdkRGBA *color, cairo_t *cr,
+			       gint *x, gint y)
+{
+	cairo_text_extents_t te;
+	GdkRGBA border_color;
+	gint w = 10;
+
+	gdk_rgba_parse(&border_color, "Black");
+	gdk_cairo_set_source_rgba(cr, &border_color);
+	cairo_set_line_width(cr, 2);
+	cairo_rectangle(cr, *x, y - w / 2, w, w);
+	cairo_stroke_preserve(cr);
+	gdk_cairo_set_source_rgba(cr, color);
+	cairo_fill(cr);
+	*x += w;
+
+	cairo_text_extents(cr, str, &te);
+	cairo_move_to(cr,
+		      *x + 5 - te.x_bearing,
+		      y - te.height / 2 - te.y_bearing);
+	cairo_show_text(cr, str);
+	*x += te.x_advance + 20;
+}
+
 static gboolean gzv_if_draw_legend_cb(GtkWidget *widget, cairo_t *cr,
 				      gpointer data)
 {
-	cairo_text_extents_t te;
-	gint w = 10, x = 10, y = 10;
-	GdkRGBA color;
-	char *str;
+	gint x = 10, y = 10;
 
 	/* Set font */
 	cairo_select_font_face(cr, "Monospace",
@@ -274,134 +295,31 @@ static gboolean gzv_if_draw_legend_cb(GtkWidget *widget, cairo_t *cr,
 	cairo_set_font_size(cr, 10);
 
 	/* Conv zone legend */
-	str = "Conventional zone";
-	gdk_rgba_parse(&color, "Black");
-	gdk_cairo_set_source_rgba(cr, &color);
-	cairo_set_line_width(cr, 2);
-	cairo_rectangle(cr, x, y - w / 2, w, w);
-	cairo_stroke_preserve(cr);
-	gdk_cairo_set_source_rgba(cr, &gzv.color_conv);
-	cairo_fill(cr);
-	x += w;
-
-	cairo_text_extents(cr, str, &te);
-	cairo_move_to(cr,
-		      x + 5 - te.x_bearing,
-		      y - te.height / 2 - te.y_bearing);
-	cairo_show_text(cr, str);
-	x += te.x_advance + 20;
+	gzv_if_draw_legend("Conventional zone", &gzv.color_conv, cr, &x, y);
 
 	/* Seq zone legend */
-	str = "Sequential zone (unwritten)";
-	gdk_rgba_parse(&color, "Black");
-	gdk_cairo_set_source_rgba(cr, &color);
-	cairo_set_line_width(cr, 2);
-	cairo_rectangle(cr, x, y - w / 2, w, w);
-	cairo_stroke_preserve(cr);
-	gdk_cairo_set_source_rgba(cr, &gzv.color_seq);
-	cairo_fill(cr);
-	x += w;
-
-	cairo_text_extents(cr, str, &te);
-	cairo_move_to(cr,
-		      x + 5 - te.x_bearing,
-		      y - te.height / 2 - te.y_bearing);
-	cairo_show_text(cr, str);
-	x += te.x_advance + 20;
+	gzv_if_draw_legend("Sequential zone (unwritten)", &gzv.color_seq, cr,
+			   &x, y);
 
 	/* Seq written zone legend */
-	str = "Sequential zone (written)";
-	gdk_rgba_parse(&color, "Black");
-	gdk_cairo_set_source_rgba(cr, &color);
-	cairo_set_line_width(cr, 2);
-	cairo_rectangle(cr, x, y - w / 2, w, w);
-	cairo_stroke_preserve(cr);
-	gdk_cairo_set_source_rgba(cr, &gzv.color_seqw);
-	cairo_fill(cr);
-	x += w;
-
-	cairo_text_extents(cr, str, &te);
-	cairo_move_to(cr,
-		      x + 5 - te.x_bearing,
-		      y - te.height / 2 - te.y_bearing);
-	cairo_show_text(cr, str);
-	x += te.x_advance + 20;
+	gzv_if_draw_legend("Sequential zone (written)", &gzv.color_seqw, cr,
+			   &x, y);
 
 	/* Second row */
 	x = 10;
 	y += 20;
 
 	/* Offline zone legend */
-	str = "Offline zone";
-	gdk_rgba_parse(&color, "Black");
-	gdk_cairo_set_source_rgba(cr, &color);
-	cairo_set_line_width(cr, 2);
-	cairo_rectangle(cr, x, y - w / 2, w, w);
-	cairo_stroke_preserve(cr);
-	gdk_cairo_set_source_rgba(cr, &gzv.color_of);
-	cairo_fill(cr);
-	x += w;
-
-	cairo_text_extents(cr, str, &te);
-	cairo_move_to(cr,
-		      x + 5 - te.x_bearing,
-		      y - te.height / 2 - te.y_bearing);
-	cairo_show_text(cr, str);
-	x += te.x_advance + 20;
+	gzv_if_draw_legend("Offline zone", &gzv.color_of, cr, &x, y);
 
 	/* Implicit open zone legend */
-	str = "Implicitly opened zone";
-	gdk_rgba_parse(&color, "Black");
-	gdk_cairo_set_source_rgba(cr, &color);
-	cairo_set_line_width(cr, 2);
-	cairo_rectangle(cr, x, y - w / 2, w, w);
-	cairo_stroke_preserve(cr);
-	gdk_cairo_set_source_rgba(cr, &gzv.color_oi);
-	cairo_fill(cr);
-	x += w;
-
-	cairo_text_extents(cr, str, &te);
-	cairo_move_to(cr,
-		      x + 5 - te.x_bearing,
-		      y - te.height / 2 - te.y_bearing);
-	cairo_show_text(cr, str);
-	x += te.x_advance + 20;
+	gzv_if_draw_legend("Implicitly opened zone", &gzv.color_oi, cr, &x, y);
 
 	/* Explicit open zone legend */
-	str = "Explicitly opened zone";
-	gdk_rgba_parse(&color, "Black");
-	gdk_cairo_set_source_rgba(cr, &color);
-	cairo_set_line_width(cr, 2);
-	cairo_rectangle(cr, x, y - w / 2, w, w);
-	cairo_stroke_preserve(cr);
-	gdk_cairo_set_source_rgba(cr, &gzv.color_oe);
-	cairo_fill(cr);
-	x += w;
-
-	cairo_text_extents(cr, str, &te);
-	cairo_move_to(cr,
-		      x + 5 - te.x_bearing,
-		      y - te.height / 2 - te.y_bearing);
-	cairo_show_text(cr, str);
-	x += te.x_advance + 20;
+	gzv_if_draw_legend("Explicitly opened zone", &gzv.color_oe, cr, &x, y);
 
 	/* Closed open zone legend */
-	str = "Closed zone";
-	gdk_rgba_parse(&color, "Black");
-	gdk_cairo_set_source_rgba(cr, &color);
-	cairo_set_line_width(cr, 2);
-	cairo_rectangle(cr, x, y - w / 2, w, w);
-	cairo_stroke_preserve(cr);
-	gdk_cairo_set_source_rgba(cr, &gzv.color_cl);
-	cairo_fill(cr);
-	x += w;
-
-	cairo_text_extents(cr, str, &te);
-	cairo_move_to(cr,
-		      x + 5 - te.x_bearing,
-		      y - te.height / 2 - te.y_bearing);
-	cairo_show_text(cr, str);
-	x += te.x_advance + 20;
+	gzv_if_draw_legend("Closed zone", &gzv.color_cl, cr, &x, y);
 
 	return FALSE;
 }
