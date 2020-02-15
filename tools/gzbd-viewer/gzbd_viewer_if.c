@@ -117,6 +117,23 @@ static void gzv_if_delete_cb(GtkWidget *widget, GdkEvent *event,
 	gtk_main_quit();
 }
 
+static void gzv_if_zone_draw_written(struct blk_zone *blkz, cairo_t *cr,
+				     GtkAllocation *allocation)
+{
+	if (zbd_zone_wp(blkz) > zbd_zone_start(blkz)) {
+		/* Written space in zone */
+		long long w = (long long)allocation->width *
+			       (zbd_zone_wp(blkz) - zbd_zone_start(blkz)) /
+			zbd_zone_len(blkz);
+		if (w > allocation->width)
+			w = allocation->width;
+
+		gdk_cairo_set_source_rgba(cr, &gzv.color_seqw);
+		cairo_rectangle(cr, 0, 0, w, allocation->height);
+		cairo_fill(cr);
+	}
+}
+
 static void gzv_if_zone_draw_num(struct gzv_zone *zone, cairo_t *cr,
 				 GtkAllocation *allocation)
 {
@@ -141,7 +158,6 @@ static gboolean gzv_if_zone_draw_cb(GtkWidget *widget, cairo_t *cr,
 	struct gzv_zone *zone = user_data;
 	struct blk_zone *blkz = zone->blkz;
 	GtkAllocation allocation;
-	long long w;
 
 	/* Current size */
 	gtk_widget_get_allocation(zone->da, &allocation);
@@ -176,18 +192,7 @@ static gboolean gzv_if_zone_draw_cb(GtkWidget *widget, cairo_t *cr,
 	cairo_rectangle(cr, 0, 0, allocation.width, allocation.height);
 	cairo_fill(cr);
 
-	if (zbd_zone_wp(blkz) > zbd_zone_start(blkz)) {
-		/* Written space in zone */
-		w = (long long)allocation.width *
-		     (zbd_zone_wp(blkz) - zbd_zone_start(blkz)) /
-			zbd_zone_len(blkz);
-		if (w > allocation.width)
-			w = allocation.width;
-
-		gdk_cairo_set_source_rgba(cr, &gzv.color_seqw);
-		cairo_rectangle(cr, 0, 0, w, allocation.height);
-		cairo_fill(cr);
-	}
+	gzv_if_zone_draw_written(blkz, cr, &allocation);
 
 	/* State highlight */
 	if (zbd_zone_imp_open(blkz))
