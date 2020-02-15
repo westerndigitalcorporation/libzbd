@@ -47,6 +47,7 @@ struct gzv {
 	GdkRGBA			color_conv;
 	GdkRGBA			color_seq;
 	GdkRGBA			color_seqw;
+	GdkRGBA			color_nonw;
 	GdkRGBA			color_text;
 	GdkRGBA			color_oi;
 	GdkRGBA			color_oe;

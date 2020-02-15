@@ -35,12 +35,14 @@ static void gzv_set_zone_tooltip(struct gzv_zone *zone)
 			 "  - Type: %s\n"
 			 "  - Condition: %s\n"
 			 "  - Start offset: %llu %s\n"
-			 "  - Length: %llu %s",
+			 "  - Length: %llu %s\n"
+			 "  - Capacity: %llu %s",
 			 zone->zno,
 			 zbd_zone_type_str(zbdz, false),
 			 zbd_zone_cond_str(zbdz, false),
 			 zbd_zone_start(zbdz), bs,
-			 zbd_zone_len(zbdz), bs);
+			 zbd_zone_len(zbdz), bs,
+			 zbd_zone_capacity(zbdz), bs);
 	} else {
 		snprintf(info, sizeof(info) - 1,
 			 "<b>Zone %u</b>:\n"
@@ -48,12 +50,14 @@ static void gzv_set_zone_tooltip(struct gzv_zone *zone)
 			 "  - Condition: %s\n"
 			 "  - Start offset: %llu %s\n"
 			 "  - Length: %llu %s\n"
+			 "  - Capacity: %llu %s\n"
 			 "  - WP offset: +%llu %s",
 			 zone->zno,
 			 zbd_zone_type_str(zbdz, false),
 			 zbd_zone_cond_str(zbdz, false),
 			 zbd_zone_start(zbdz), bs,
 			 zbd_zone_len(zbdz), bs,
+			 zbd_zone_capacity(zbdz), bs,
 			 zbd_zone_wp(zbdz) - zbd_zone_start(zbdz), bs);
 	}
 
@@ -117,21 +121,44 @@ static void gzv_if_delete_cb(GtkWidget *widget, GdkEvent *event,
 	gtk_main_quit();
 }
 
+static void gzv_if_zone_draw_nonwritable(struct zbd_zone *zbdz, cairo_t *cr,
+					 GtkAllocation *allocation)
+{
+	long long w;
+
+	if (zbd_zone_capacity(zbdz) == zbd_zone_len(zbdz))
+		return;
+
+	/* Non-writable space in zone */
+	w = (long long)allocation->width *
+		(zbd_zone_len(zbdz) - zbd_zone_capacity(zbdz)) /
+		zbd_zone_len(zbdz);
+	if (w > allocation->width)
+		w = allocation->width;
+
+	gdk_cairo_set_source_rgba(cr, &gzv.color_nonw);
+	cairo_rectangle(cr, allocation->width - w, 0, w, allocation->height);
+	cairo_fill(cr);
+}
+
 static void gzv_if_zone_draw_written(struct zbd_zone *zbdz, cairo_t *cr,
 				     GtkAllocation *allocation)
 {
-	if (zbd_zone_wp(zbdz) > zbd_zone_start(zbdz)) {
-		/* Written space in zone */
-		long long w = (long long)allocation->width *
-			       (zbd_zone_wp(zbdz) - zbd_zone_start(zbdz)) /
-			zbd_zone_len(zbdz);
-		if (w > allocation->width)
-			w = allocation->width;
+	long long w;
 
-		gdk_cairo_set_source_rgba(cr, &gzv.color_seqw);
-		cairo_rectangle(cr, 0, 0, w, allocation->height);
-		cairo_fill(cr);
-	}
+	if (zbd_zone_wp(zbdz) == zbd_zone_start(zbdz))
+		return;
+
+	/* Written space in zone */
+	w = (long long)allocation->width *
+		(zbd_zone_wp(zbdz) - zbd_zone_start(zbdz)) /
+		zbd_zone_len(zbdz);
+	if (w > allocation->width)
+		w = allocation->width;
+
+	gdk_cairo_set_source_rgba(cr, &gzv.color_seqw);
+	cairo_rectangle(cr, 0, 0, w, allocation->height);
+	cairo_fill(cr);
 }
 
 static void gzv_if_zone_draw_num(struct gzv_zone *zone, cairo_t *cr,
@@ -192,6 +219,7 @@ static gboolean gzv_if_zone_draw_cb(GtkWidget *widget, cairo_t *cr,
 	cairo_rectangle(cr, 0, 0, allocation.width, allocation.height);
 	cairo_fill(cr);
 
+	gzv_if_zone_draw_nonwritable(zbdz, cr, &allocation);
 	gzv_if_zone_draw_written(zbdz, cr, &allocation);
 
 	/* State highlight */
@@ -213,6 +241,8 @@ static gboolean gzv_if_zone_draw_cb(GtkWidget *widget, cairo_t *cr,
 out_fill:
 	cairo_rectangle(cr, 0, 0, allocation.width, allocation.height);
 	cairo_fill(cr);
+
+	gzv_if_zone_draw_nonwritable(zbdz, cr, &allocation);
 
 	/* Draw zone number */
 	gzv_if_zone_draw_num(zone, cr, &allocation);
@@ -310,6 +340,9 @@ static gboolean gzv_if_draw_legend_cb(GtkWidget *widget, cairo_t *cr,
 	gzv_if_draw_legend("Sequential zone (written)", &gzv.color_seqw, cr,
 			   &x, y);
 
+	/* Non-writable space legend */
+	gzv_if_draw_legend("Non-writable space", &gzv.color_nonw, cr, &x, y);
+
 	/* Second row */
 	x = 10;
 	y += 20;
@@ -341,6 +374,7 @@ void gzv_if_create(void)
 	gdk_rgba_parse(&gzv.color_conv, "Magenta");	/* Conv zones */
 	gdk_rgba_parse(&gzv.color_seq, "Green");	/* Seq zones */
 	gdk_rgba_parse(&gzv.color_seqw, "Red");		/* Seq written/full */
+	gdk_rgba_parse(&gzv.color_nonw, "RosyBrown");	/* Non-writable */
 	gdk_rgba_parse(&gzv.color_text, "Black");
 	gdk_rgba_parse(&gzv.color_oe, "Blue");		/* Exp open zones */
 	gdk_rgba_parse(&gzv.color_oi, "DeepSkyBlue");	/* Imp open zones */

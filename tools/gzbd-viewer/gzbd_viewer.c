@@ -102,6 +102,7 @@ static void gzv_fix_zone_values(struct zbd_zone *zbdz, int nrz)
 	for (i = 0; i < nrz; i++) {
 		zbdz->start /= gzv.block_size;
 		zbdz->len /= gzv.block_size;
+		zbdz->capacity /= gzv.block_size;
 		if (!zbd_zone_cnv(zbdz))
 			zbdz->wp /= gzv.block_size;
 		zbdz++;
