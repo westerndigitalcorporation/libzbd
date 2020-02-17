@@ -123,6 +123,7 @@ typedef struct dz {
 	GdkRGBA			conv_color;
 	GdkRGBA			seqnw_color;
 	GdkRGBA			seqw_color;
+	GdkRGBA			nonw_color;
 
 	/**
 	 * For handling signals.

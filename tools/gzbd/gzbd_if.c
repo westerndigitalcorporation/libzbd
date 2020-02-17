@@ -35,6 +35,7 @@ void dz_if_create(void)
 	gdk_rgba_parse(&dz.conv_color, "Magenta");
 	gdk_rgba_parse(&dz.seqnw_color, "Green");
 	gdk_rgba_parse(&dz.seqw_color, "Red");
+	gdk_rgba_parse(&dz.nonw_color, "RosyBrown");
 
 	/* Window */
 	dz.window = gtk_window_new(GTK_WINDOW_TOPLEVEL);

@@ -55,6 +55,12 @@ static void dz_if_zlist_print_zone_len(GtkTreeViewColumn *col,
 				       GtkTreeIter *iter,
 				       gpointer user_data);
 
+static void dz_if_zlist_print_zone_capacity(GtkTreeViewColumn *col,
+					    GtkCellRenderer *renderer,
+					    GtkTreeModel *model,
+					    GtkTreeIter *iter,
+					    gpointer user_data);
+
 static void dz_if_zlist_print_zone_wp(GtkTreeViewColumn *col,
 				      GtkCellRenderer *renderer,
 				      GtkTreeModel *model,
@@ -357,6 +363,13 @@ dz_dev_t *dz_if_dev_open(char *path)
 	gtk_tree_view_insert_column_with_data_func(GTK_TREE_VIEW(treeview), -1,
 						   "Length", renderer,
 						   dz_if_zlist_print_zone_len,
+						   dzd, NULL);
+
+	/* Capacity column */
+	renderer = gtk_cell_renderer_text_new();
+	gtk_tree_view_insert_column_with_data_func(GTK_TREE_VIEW(treeview), -1,
+						   "Capacity", renderer,
+						   dz_if_zlist_print_zone_capacity,
 						   dzd, NULL);
 
 	/* Write pointer column */
@@ -771,6 +784,26 @@ static void dz_if_zlist_print_zone_len(GtkTreeViewColumn *col,
 	/* Zone length */
 	g_object_set(renderer, "foreground", "Black", "foreground-set", TRUE, NULL);
 	dz_if_val_str(dzd, str, zbd_zone_len(z));
+	g_object_set(renderer, "text", str, NULL);
+}
+
+static void dz_if_zlist_print_zone_capacity(GtkTreeViewColumn *col,
+					    GtkCellRenderer *renderer,
+					    GtkTreeModel *model,
+					    GtkTreeIter *iter,
+					    gpointer user_data)
+{
+	dz_dev_t *dzd = (dz_dev_t *) user_data;
+	struct zbd_zone *z;
+	char str[64];
+	int i;
+
+	gtk_tree_model_get(model, iter, DZ_ZONE_NUM, &i, -1);
+	z = &dzd->zones[i].info;
+
+	/* Zone capacity */
+	g_object_set(renderer, "foreground", "Black", "foreground-set", TRUE, NULL);
+	dz_if_val_str(dzd, str, zbd_zone_capacity(z));
 	g_object_set(renderer, "text", str, NULL);
 }
 
@@ -1225,6 +1258,9 @@ static gboolean dz_if_zones_draw_legend_cb(GtkWidget *widget, cairo_t *cr,
 	dz_if_draw_legend("Sequential zone written space", &dz.seqw_color,
 			  cr, &x, h);
 
+	/* Non-writable space legend */
+	dz_if_draw_legend("Non-writable space", &dz.nonw_color, cr, &x, h);
+
 	return FALSE;
 }
 
@@ -1297,6 +1333,19 @@ static gboolean dz_if_zones_draw_cb(GtkWidget *widget, cairo_t *cr,
 		else
 			gdk_cairo_set_source_rgba(cr, &dz.seqnw_color);
 		cairo_fill(cr);
+
+		/* Non-writable space in zone */
+		if (zbd_zone_capacity(z) < zbd_zone_len(z)) {
+			ww = (zw * (zbd_zone_len(z) - zbd_zone_capacity(z)))
+				/ zbd_zone_len(z);
+			if ( ww ) {
+				gdk_cairo_set_source_rgba(cr, &dz.nonw_color);
+				cairo_rectangle(cr,
+						x + zw - ww, DZ_DRAW_HOFST,
+						ww, h - DZ_DRAW_HOFST * 2);
+				cairo_fill(cr);
+			}
+		}
 
 		if (!zbd_zone_cnv(z) &&
 		    (zbd_zone_imp_open(z) ||
