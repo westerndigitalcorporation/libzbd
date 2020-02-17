@@ -141,7 +141,6 @@ dz_dev_t *dz_if_dev_open(char *path)
 	GtkWidget *entry;
 	GtkWidget *hbuttonbox;
 	GtkWidget *treeview;
-	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
 	GtkTreeIter iter;
 	GtkWidget *da;
@@ -283,15 +282,7 @@ dz_dev_t *dz_if_dev_open(char *path)
 
 	/* Create zone list store and add rows */
 	dzd->zlist_store = gtk_list_store_new(DZ_ZONE_LIST_COLUMS,
-					      G_TYPE_UINT,
-					      G_TYPE_UINT,
-					      G_TYPE_UINT,
-					      G_TYPE_UINT,
-					      G_TYPE_UINT,
-					      G_TYPE_UINT64,
-					      G_TYPE_UINT64,
-					      G_TYPE_UINT64,
-					      G_TYPE_INT);
+					      G_TYPE_UINT); /* DZ_ZONE_NUM */
 	for (i = 0; i < dzd->max_nr_zones; i++)
 		gtk_list_store_append(dzd->zlist_store, &iter);
 
@@ -321,83 +312,59 @@ dz_dev_t *dz_if_dev_open(char *path)
 
 	/* Number column */
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("Zone number",
-							  renderer, "text",
-							  DZ_ZONE_NUM, NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer,
-						dz_if_zlist_print_zone_number,
-						dzd, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+	gtk_tree_view_insert_column_with_data_func(GTK_TREE_VIEW(treeview), -1,
+						   "Zone number", renderer,
+						   dz_if_zlist_print_zone_number,
+						   dzd, NULL);
 
 	/* Type column */
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("Type",
-							  renderer, "text",
-							  DZ_ZONE_TYPE, NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer,
-						dz_if_zlist_print_zone_type,
-						dzd, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+	gtk_tree_view_insert_column_with_data_func(GTK_TREE_VIEW(treeview), -1,
+						   "Type", renderer,
+						   dz_if_zlist_print_zone_type,
+						   dzd, NULL);
 
 	/* Condition column */
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("Condition",
-							  renderer, "text",
-							  DZ_ZONE_COND, NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer,
-						dz_if_zlist_print_zone_cond,
-						dzd, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+	gtk_tree_view_insert_column_with_data_func(GTK_TREE_VIEW(treeview), -1,
+						   "Condition", renderer,
+						   dz_if_zlist_print_zone_cond,
+						   dzd, NULL);
 
 	/* Need reset column */
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("RWP Recommended",
-							  renderer, "text",
-							  DZ_ZONE_RWP_RECOMMENDED, NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer,
-						dz_if_zlist_print_zone_rwp_recommended,
-						dzd, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+	gtk_tree_view_insert_column_with_data_func(GTK_TREE_VIEW(treeview), -1,
+						   "RWP Recommended", renderer,
+						   dz_if_zlist_print_zone_rwp_recommended,
+						   dzd, NULL);
 
 	/* Non-seq column */
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("Non Seq",
-							  renderer, "text",
-							  DZ_ZONE_NONSEQ, NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer,
-						dz_if_zlist_print_zone_nonseq,
-						dzd, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+	gtk_tree_view_insert_column_with_data_func(GTK_TREE_VIEW(treeview), -1,
+						   "Non Seq", renderer,
+						   dz_if_zlist_print_zone_nonseq,
+						   dzd, NULL);
 
 	/* Start column */
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("Start",
-							  renderer, "text",
-							  DZ_ZONE_START, NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer,
-						dz_if_zlist_print_zone_start,
-						dzd, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+	gtk_tree_view_insert_column_with_data_func(GTK_TREE_VIEW(treeview), -1,
+						   "Start", renderer,
+						   dz_if_zlist_print_zone_start,
+						   dzd, NULL);
 
 	/* Length column */
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("Length",
-							  renderer, "text",
-							  DZ_ZONE_LENGTH, NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer,
-						dz_if_zlist_print_zone_len,
-						dzd, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+	gtk_tree_view_insert_column_with_data_func(GTK_TREE_VIEW(treeview), -1,
+						   "Length", renderer,
+						   dz_if_zlist_print_zone_len,
+						   dzd, NULL);
 
 	/* Write pointer column */
 	renderer = gtk_cell_renderer_text_new();
-	column = gtk_tree_view_column_new_with_attributes("Write Pointer",
-							  renderer, "text",
-							  DZ_ZONE_WP, NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer,
-						dz_if_zlist_print_zone_wp,
-						dzd, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+	gtk_tree_view_insert_column_with_data_func(GTK_TREE_VIEW(treeview), -1,
+						   "Write Pointer", renderer,
+						   dz_if_zlist_print_zone_wp,
+						   dzd, NULL);
 
 	/* Fill the model with zone data */
 	dz_if_zlist_fill(dzd);
@@ -858,26 +825,13 @@ static void dz_if_zlist_fill(dz_dev_t *dzd)
 {
 	GtkTreeModel *model = GTK_TREE_MODEL(dzd->zlist_store);
 	GtkTreeIter iter;
-	struct blk_zone *z;
 	unsigned int i;
 
 	gtk_tree_model_get_iter_first(model, &iter);
 
 	for (i = 0; i < dzd->max_nr_zones; i++) {
-		z = &dzd->zones[i].info;
 		gtk_list_store_set(dzd->zlist_store, &iter,
 				   DZ_ZONE_NUM, dzd->zones[i].no,
-				   DZ_ZONE_TYPE, z->type,
-				   DZ_ZONE_COND, z->cond,
-				   DZ_ZONE_RWP_RECOMMENDED, z->reset,
-				   DZ_ZONE_NONSEQ, z->non_seq,
-				   DZ_ZONE_START,
-				   dz_if_bytes2blocks(dzd, zbd_zone_start(z)),
-				   DZ_ZONE_LENGTH,
-				   dz_if_bytes2blocks(dzd, zbd_zone_len(z)),
-				   DZ_ZONE_WP,
-				   dz_if_bytes2blocks(dzd, zbd_zone_wp(z)),
-				   DZ_ZONE_VISIBLE, dzd->zones[i].visible,
 				   -1);
 		gtk_tree_model_iter_next(model, &iter);
 
