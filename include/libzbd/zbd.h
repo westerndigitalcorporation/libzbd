@@ -80,6 +80,7 @@ enum zbd_zone_flags {
 struct zbd_zone {
 	unsigned long long	start;		/* Zone start */
 	unsigned long long	len;		/* Zone length */
+	unsigned long long	capacity;	/* Zone capacity */
 	unsigned long long	wp;		/* Zone write pointer */
 	unsigned int		flags;		/* Zone flags */
 	enum zbd_zone_type	type;		/* Zone type */
@@ -492,6 +493,7 @@ static inline int zbd_finish_zones(int fd, off_t ofst, off_t len)
 
 #define zbd_zone_start(z)	((z)->start)
 #define zbd_zone_len(z)		((z)->len)
+#define zbd_zone_capacity(z)	((z)->capacity)
 #define zbd_zone_wp(z)		((z)->wp)
 
 #define zbd_zone_flags(z)	((z)->flags)

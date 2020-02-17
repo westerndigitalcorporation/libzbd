@@ -448,6 +448,7 @@ static inline void zbd_parse_zone(struct zbd_zone *zone, struct blk_zone *blkz)
 {
 	zone->start = blkz->start << SECTOR_SHIFT;
 	zone->len = blkz->len << SECTOR_SHIFT;
+	zone->capacity = zone->len;
 	zone->wp = blkz->wp << SECTOR_SHIFT;
 
 	zone->type = blkz->type;
