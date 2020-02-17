@@ -82,11 +82,12 @@ static void zbd_print_zone(struct zbd_opts *opts, struct zbd_zone *z)
 	unsigned int zno = zbd_zone_start(z) / opts->dev_info.zone_size;
 
 	if (opts->rep_csv) {
-		printf("%05u, %u, %014llu, %014llu, %014llu, 0x%01x, %01d, %01d\n",
+		printf("%05u, %u, %014llu, %014llu, %014llu, %014llu, 0x%01x, %01d, %01d\n",
 		       zno,
 		       (unsigned int)zbd_zone_type(z),
 		       zbd_zone_start(z) / opts->unit,
 		       zbd_zone_len(z) / opts->unit,
+		       zbd_zone_capacity(z) / opts->unit,
 		       zbd_zone_wp(z) / opts->unit,
 		       zbd_zone_cond(z),
 		       zbd_zone_non_seq_resources(z) ? 1 : 0,
@@ -95,21 +96,23 @@ static void zbd_print_zone(struct zbd_opts *opts, struct zbd_zone *z)
 	}
 
 	if (zbd_zone_cnv(z)) {
-		printf("Zone %05u: %s, ofst %014llu, len %014llu\n",
+		printf("Zone %05u: %s, ofst %014llu, len %014llu, cap %014llu\n",
 		       zno,
 		       zbd_zone_type_str(z, true),
 		       zbd_zone_start(z) / opts->unit,
-		       zbd_zone_len(z) / opts->unit);
+		       zbd_zone_len(z) / opts->unit,
+		       zbd_zone_capacity(z) / opts->unit);
 		return;
 	}
 
 	if (zbd_zone_seq(z)) {
-		printf("Zone %05u: %s, ofst %014llu, len %014llu, "
+		printf("Zone %05u: %s, ofst %014llu, len %014llu, cap %014llu, "
 		       "wp %014llu, %s, non_seq %01d, reset %01d\n",
 		       zno,
 		       zbd_zone_type_str(z, true),
 		       zbd_zone_start(z) / opts->unit,
 		       zbd_zone_len(z) / opts->unit,
+		       zbd_zone_capacity(z) / opts->unit,
 		       zbd_zone_wp(z) / opts->unit,
 		       zbd_zone_cond_str(z, true),
 		       zbd_zone_non_seq_resources(z) ? 1 : 0,
@@ -167,7 +170,7 @@ static int zbd_report(int fd, struct zbd_opts *opts)
 	}
 
 	if (opts->rep_csv)
-		printf("zone num, type, ofst, len, wp, cond, non_seq, reset\n");
+		printf("zone num, type, ofst, len, cap, wp, cond, non_seq, reset\n");
 
 	for (i = 0; i < nz; i++)
 		zbd_print_zone(opts, &zones[i]);
