@@ -1221,18 +1221,39 @@ static gboolean dz_if_zlist_refresh_cb(GtkWidget *widget, gpointer user_data)
 	return FALSE;
 }
 
+static void dz_if_draw_legend(char *str, const GdkRGBA *color, cairo_t *cr,
+			      gint *x, gint h)
+{
+	cairo_text_extents_t te;
+	GdkRGBA border_color;
+	gint w = h / 2;
+
+	gdk_rgba_parse(&border_color, "Black");
+	gdk_cairo_set_source_rgba(cr, &border_color);
+	cairo_set_line_width(cr, 2);
+	cairo_rectangle(cr, *x, (h - w) / 2, w, w);
+	cairo_stroke_preserve(cr);
+	gdk_cairo_set_source_rgba(cr, color);
+	cairo_fill(cr);
+	*x += w;
+
+	cairo_text_extents(cr, str, &te);
+	cairo_move_to(cr,
+		      *x + 5 - te.x_bearing,
+		      h / 2 - te.height / 2 - te.y_bearing);
+	cairo_show_text(cr, str);
+	*x += te.x_advance + 20;
+}
+
 static gboolean dz_if_zones_draw_legend_cb(GtkWidget *widget, cairo_t *cr,
 					   gpointer data)
 {
 	GtkAllocation allocation;
-	cairo_text_extents_t te;
-	GdkRGBA color;
-	gint w, h, x = 10;
+	gint h, x = 10;
 
 	/* Current size */
 	gtk_widget_get_allocation(widget, &allocation);
 	h = allocation.height;
-	w = h / 2;
 
 	/* Set font */
 	cairo_select_font_face(cr, "Monospace",
@@ -1240,54 +1261,15 @@ static gboolean dz_if_zones_draw_legend_cb(GtkWidget *widget, cairo_t *cr,
 	cairo_set_font_size(cr, 10);
 
 	/* Conventional zone legend */
-	gdk_rgba_parse(&color, "Black");
-	gdk_cairo_set_source_rgba(cr, &color);
-	cairo_set_line_width(cr, 2);
-	cairo_rectangle(cr, x, (h - w) / 2, w, w);
-	cairo_stroke_preserve(cr);
-	gdk_cairo_set_source_rgba(cr, &dz.conv_color);
-	cairo_fill(cr);
-	x += w;
-
-	cairo_text_extents(cr, "Conventional zone", &te);
-	cairo_move_to(cr,
-		      x + 5 - te.x_bearing,
-		      h / 2 - te.height / 2 - te.y_bearing);
-	cairo_show_text(cr, "Conventional zone");
-	x += te.x_advance + 20;
+	dz_if_draw_legend("Conventional zone", &dz.conv_color, cr, &x, h);
 
 	/* Seq unwritten zone legend */
-	gdk_rgba_parse(&color, "Black");
-	gdk_cairo_set_source_rgba(cr, &color);
-	cairo_set_line_width(cr, 2);
-	cairo_rectangle(cr, x, (h - w) / 2, w, w);
-	cairo_stroke_preserve(cr);
-	gdk_cairo_set_source_rgba(cr, &dz.seqnw_color);
-	cairo_fill(cr);
-	x += w;
-
-	cairo_text_extents(cr, "Sequential zone unwritten space", &te);
-	cairo_move_to(cr,
-		      x + 5 - te.x_bearing,
-		      h / 2 - te.height / 2 - te.y_bearing);
-	cairo_show_text(cr, "Sequential zone unwritten space");
-	x += te.x_advance + 20;
+	dz_if_draw_legend("Sequential zone unwritten space", &dz.seqnw_color,
+			  cr, &x, h);
 
 	/* Seq written zone legend */
-	gdk_rgba_parse(&color, "Black");
-	gdk_cairo_set_source_rgba(cr, &color);
-	cairo_set_line_width(cr, 2);
-	cairo_rectangle(cr, x, (h - w) / 2, w, w);
-	cairo_stroke_preserve(cr);
-	gdk_cairo_set_source_rgba(cr, &dz.seqw_color);
-	cairo_fill(cr);
-	x += w;
-
-	cairo_text_extents(cr, "Sequential zone written space", &te);
-	cairo_move_to(cr,
-		      x + 5 - te.x_bearing,
-		      h / 2 - te.height / 2 - te.y_bearing);
-	cairo_show_text(cr, "Sequential zone written space");
+	dz_if_draw_legend("Sequential zone written space", &dz.seqw_color,
+			  cr, &x, h);
 
 	return FALSE;
 }
