@@ -39,7 +39,7 @@ void dz_if_create(void)
 	/* Window */
 	dz.window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(dz.window),
-			     "Zoned BLock Device Zone State");
+			     "Zoned Block Device Zone State");
 	gtk_container_set_border_width(GTK_CONTAINER(dz.window), 10);
 
 	g_signal_connect((gpointer) dz.window, "delete-event",
