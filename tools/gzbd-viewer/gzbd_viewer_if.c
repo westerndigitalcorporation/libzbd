@@ -263,15 +263,10 @@ static gboolean gzv_if_scroll_value_cb(GtkWidget *widget,
 static gboolean gzv_if_draw_legend_cb(GtkWidget *widget, cairo_t *cr,
 				      gpointer data)
 {
-	GtkAllocation allocation;
 	cairo_text_extents_t te;
-	gint w, x = 10, y = 10;
+	gint w = 10, x = 10, y = 10;
 	GdkRGBA color;
 	char *str;
-
-	/* Current size */
-	gtk_widget_get_allocation(widget, &allocation);
-	w = 10;
 
 	/* Set font */
 	cairo_select_font_face(cr, "Monospace",
