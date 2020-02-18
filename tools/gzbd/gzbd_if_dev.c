@@ -1395,7 +1395,7 @@ static gboolean dz_if_zones_draw_cb(GtkWidget *widget, cairo_t *cr,
 		cairo_show_text(cr, str);
 
 		/* Write zone size */
-		sz = zbd_zone_len(z) << 9;
+		sz = zbd_zone_len(z);
 		if (sz > 1024 * 1024 *1024)
 			sprintf(str, "%llu GiB", sz / (1024 * 1024 *1024));
 		else
