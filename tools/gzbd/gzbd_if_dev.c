@@ -793,18 +793,18 @@ static void dz_if_zlist_print_zone_len(GtkTreeViewColumn *col,
 				       GtkTreeIter *iter,
 				       gpointer user_data)
 {
-    dz_dev_t *dzd = (dz_dev_t *) user_data;
-    struct blk_zone *z;
-    char str[64];
-    int i;
+	dz_dev_t *dzd = (dz_dev_t *) user_data;
+	struct blk_zone *z;
+	char str[64];
+	int i;
 
-    gtk_tree_model_get(model, iter, DZ_ZONE_NUM, &i, -1);
-    z = &dzd->zones[i].info;
+	gtk_tree_model_get(model, iter, DZ_ZONE_NUM, &i, -1);
+	z = &dzd->zones[i].info;
 
-    /* Zone length */
-    g_object_set(renderer, "foreground", "Black", "foreground-set", TRUE, NULL);
-    dz_if_val_str(dzd, str, zbd_zone_len(z));
-    g_object_set(renderer, "text", str, NULL);
+	/* Zone length */
+	g_object_set(renderer, "foreground", "Black", "foreground-set", TRUE, NULL);
+	dz_if_val_str(dzd, str, zbd_zone_len(z));
+	g_object_set(renderer, "text", str, NULL);
 }
 
 static void dz_if_zlist_print_zone_wp(GtkTreeViewColumn *col,
