@@ -31,7 +31,7 @@ version.
 
 *libzbd* and all its example applications are distributed "as is," without
 technical support, and WITHOUT ANY WARRANTY, without even the implied warranty
-of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Along with *libzbc*, you
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Along with *libzbd*, you
 should have received a copy of the GNU Lesser General Public License version 2.
 If not, please see http://www.gnu.org/licenses/.
 
@@ -49,7 +49,7 @@ THAT ARE VENDOR SAMPLES OR NOT PUBLICLY AVAILABLE.
 
 *libzbd* requires that the autoconf, automake and libtool development packages
 be installed on the host used for compilation. The GTK3 and GTK3 development
-packages are necessary to compile the *gzbc* application. Installing these
+packages are necessary to compile the *gzbd* application. Installing these
 packages will automatically enable the compilation of the gzbd and gzbd-viewer
 graphical interface tools.
 
