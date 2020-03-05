@@ -400,7 +400,7 @@ int zbd_get_info(int fd, struct zbd_info *info)
 }
 
 /*
- * zbc_should_report_zone - Test if a zone must be reported.
+ * zbd_should_report_zone - Test if a zone must be reported.
  */
 static bool zbd_should_report_zone(struct blk_zone *blkz,
 				   enum zbd_report_option ro)
@@ -434,7 +434,7 @@ static bool zbd_should_report_zone(struct blk_zone *blkz,
 }
 
 /*
- * zbc_report_zone - Fill zone report
+ * zbd_report_zone - Fill zone report
  */
 static inline void zbd_report_zone(struct blk_zone *blkz,
 				   struct blk_zone *zone)
