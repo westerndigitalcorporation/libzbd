@@ -271,6 +271,10 @@ static struct zbd_info *zbd_do_get_info(int fd, char *devname)
 	}
 	zbdi->nr_zones = nr_zones;
 
+	/* Set limits to unknown for now */
+	zbdi->max_nr_open_zones = -1;
+	zbdi->max_nr_active_zones = -1;
+
 	/* Finish setting */
 	if (!zbd_get_vendor_id(devname, zbdi))
 		strncpy(zbdi->vendor_id,

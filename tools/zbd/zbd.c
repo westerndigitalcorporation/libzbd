@@ -213,18 +213,21 @@ static void zbd_print_dev_info(struct zbd_opts *opts)
 	       (double)opts->dev_info.zone_size / 1048576.0);
 	printf("    %u zones\n", opts->dev_info.nr_zones);
 
-        if (opts->dev_info.model == ZBD_DM_HOST_MANAGED) {
-		printf("    Maximum number of open sequential write "
-		       "required zones: %u\n",
-		       opts->dev_info.max_nr_open_seq_req);
-	} else if (opts->dev_info.model == ZBD_DM_HOST_AWARE) {
-		printf("    Optimal number of open sequential write "
-		       "preferred zones: %u\n",
-		       opts->dev_info.nr_open_seq_pref);
-		printf("    Optimal number of non-sequentially written "
-		       "sequential write preferred zones: %u\n",
-		       opts->dev_info.nr_non_seq_write_seq_pref);
-	}
+	printf("    Maximum number of open zones: ");
+	if (opts->dev_info.max_nr_open_zones == (unsigned int)-1)
+		printf("unknown\n");
+	else if (opts->dev_info.max_nr_open_zones == 0)
+		printf("no limit\n");
+	else
+		printf("%u\n", opts->dev_info.max_nr_open_zones);
+
+	printf("    Maximum number of active zones: ");
+	if (opts->dev_info.max_nr_active_zones == (unsigned int)-1)
+		printf("unknown\n");
+	else if (opts->dev_info.max_nr_active_zones == 0)
+		printf("no limit\n");
+	else
+		printf("%u\n", opts->dev_info.max_nr_active_zones);
 }
 
 static int zbd_usage(char *cmd)

@@ -98,26 +98,17 @@ struct zbd_info {
 	unsigned long long	nr_pblocks;
 
 	/**
-	 * Optimal maximum number of explicitly open sequential write
-	 * preferred zones (host-aware device models only). A value
-	 * of "-1" means that the drive did not report any value.
+	 * Maximum number of explicitely open zones. A value of 0 means that
+	 * the device has no limit. A value of -1 means that the value is
+	 * unknown.
 	 */
-	unsigned int		nr_open_seq_pref;
+	unsigned int		max_nr_open_zones;
 
 	/**
-	 * Optimal maximum number of sequential write preferred zones
-	 * with the ZBD_ZA_NON_SEQ zone attribute set
-	 * (host-aware device models only). A value of "-1" means that
-	 * the drive did not report any value.
-	 */
-	unsigned int		nr_non_seq_write_seq_pref;
-
-	/**
-	 * Maximum number of explicitly open sequential write required
-	 * zones (host-managed device models only). A value of "-1" means
-	 * that there is no restrictions on the number of open zones.
-	 */
-	unsigned int		max_nr_open_seq_req;
+         * Maximum number of active zones. A value of 0 means that the device
+	 * has no limit. A value of -1 means that the value is unknown.
+         */
+        unsigned int            max_nr_active_zones;
 
 	/**
 	 * Size in bytes of a zone.
