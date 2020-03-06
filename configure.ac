@@ -1,5 +1,5 @@
-AC_INIT([libzbd], [0.0.1],
-	[damien.lemoal@wdc.com, ting.yao1@wdc.com],
+AC_INIT([libzbd], [0.0.2],
+	[damien.lemoal@wdc.com, niklas.cassel@wdc.com],
 	[libzbd], [https://github.com/westerndigitalcorporation/libzbd])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
