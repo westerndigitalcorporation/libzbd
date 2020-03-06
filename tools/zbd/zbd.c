@@ -199,19 +199,18 @@ static void zbd_print_dev_info(struct zbd_opts *opts)
 
 	printf("    Vendor ID: %s\n",
 	       opts->dev_info.vendor_id);
-	printf("    %s zone model\n",
+	printf("    Zone model: %s\n",
 		zbd_device_model_str(opts->dev_info.model, false));
-	printf("    %llu 512-bytes sectors\n",
+	printf("    Capacity: %.03F GB (%llu 512-bytes sectors)\n",
+	       (double)(opts->dev_info.nr_sectors << 9) / 1000000000,
 	       opts->dev_info.nr_sectors);
-	printf("    %llu logical blocks of %zu B\n",
+	printf("    Logical blocks: %llu blocks of %zu B\n",
 	       opts->dev_info.nr_lblocks, opts->dev_info.lblock_size);
-	printf("    %llu physical blocks of %zu B\n",
+	printf("    Physical blocks: %llu blocks of %zu B\n",
 	       opts->dev_info.nr_pblocks, opts->dev_info.pblock_size);
-	printf("    %.03F GB capacity\n",
-	       (double)(opts->dev_info.nr_sectors << 9) / 1000000000);
-	printf("    %.1F MB zone size\n",
+	printf("    Zones: %u zones of %.1F MB\n",
+	       opts->dev_info.nr_zones,
 	       (double)opts->dev_info.zone_size / 1048576.0);
-	printf("    %u zones\n", opts->dev_info.nr_zones);
 
 	printf("    Maximum number of open zones: ");
 	if (opts->dev_info.max_nr_open_zones == (unsigned int)-1)
