@@ -12,7 +12,7 @@ visually represent the state and usage of zones of a zoned block device.
 
 ### Library version
 
-*libzbd* current version is 0.0.1 (prototype state).
+*libzbd* current version is 0.0.2 (prototype state).
 
 ### Kernel Versions Supported
 
@@ -40,7 +40,7 @@ If not, please see http://www.gnu.org/licenses/.
 Contributions are accepted as github pull requests. Any problem may also be
 reported through github issue page or by contacting:
 * Damien Le Moal (damien.lemoal@wdc.com)
-* Dmitry Fomichev (dmitry.fomichev@wdc.com)
+* Niklas Cassel (niklas.cassel@wdc.com)
 
 PLEASE DO NOT SUBMIT CONFIDENTIAL INFORMATION OR INFORMATION SPECIFIC TO DRIVES
 THAT ARE VENDOR SAMPLES OR NOT PUBLICLY AVAILABLE.
