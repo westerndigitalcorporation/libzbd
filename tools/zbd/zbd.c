@@ -168,8 +168,6 @@ static int zbd_report(int fd, struct zbd_opts *opts)
 
 	if (opts->rep_csv)
 		printf("zone num, type, ofst, len, wp, cond, non_seq, reset\n");
-	else
-		printf("%u / %u zones\n", nz, opts->dev_info.nr_zones);
 
 	for (i = 0; i < nz; i++)
 		zbd_print_zone(opts, &zones[i]);
