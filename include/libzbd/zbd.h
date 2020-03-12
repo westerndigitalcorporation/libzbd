@@ -10,6 +10,10 @@
 #ifndef _LIBZBD_H_
 #define _LIBZBD_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define _LARGEFILE64_SOURCE
 
 #include <stdio.h>
@@ -450,5 +454,9 @@ const char *zbd_zone_type_str(struct blk_zone *z, bool s);
  * @return Zone type string or NULL for an invalid zone condition.
  */
 const char *zbd_zone_cond_str(struct blk_zone *z, bool s);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _LIBZBD_H_ */
