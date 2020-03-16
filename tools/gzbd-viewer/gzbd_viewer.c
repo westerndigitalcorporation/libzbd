@@ -202,7 +202,7 @@ int main(int argc, char **argv)
 		},
 		{
 			"interval", 'i', 0,
-			G_OPTION_ARG_INT64, &gzv.refresh_interval,
+			G_OPTION_ARG_INT, &gzv.refresh_interval,
 			"Refresh interval (milliseconds)",
 			 NULL
 		},
