@@ -53,7 +53,7 @@ struct gzv {
 	GdkRGBA			color_cl;
 	GdkRGBA			color_of;
 	GtkWidget		*window;
-	GtkAdjustment 		*vadj;
+	GtkAdjustment		*vadj;
 
 	/*
 	 * Device information.
