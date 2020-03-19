@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: CC0-1.0
+#
+# SPDX-FileCopyrightText: 2020 Western Digital Corporation or its affiliates. 
+
 # Object files
 *.o
 *.lo
@@ -24,7 +28,6 @@ Thumbs.db
 desktop.ini
 .DS_Store
 *~
-*.txt
 
 # Autotools stuff
 m4/*.m4

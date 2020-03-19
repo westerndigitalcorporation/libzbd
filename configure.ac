@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: LGPL-3.0-or-later
+#
+# SPDX-FileCopyrightText: 2020 Western Digital Corporation or its affiliates.
+
 AC_INIT([libzbd], [0.0.2],
 	[damien.lemoal@wdc.com, niklas.cassel@wdc.com],
 	[libzbd], [https://github.com/westerndigitalcorporation/libzbd])

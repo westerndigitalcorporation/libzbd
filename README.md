@@ -1,5 +1,6 @@
-Copyright (C) 2020 Western Digital Corporation or its affiliates.
+SPDX-License-Identifier: LGPL-3.0-or-later
 
+SPDX-FileCopyrightText: 2020 Western Digital Corporation or its affiliates.
 
 # libzbd
 
@@ -23,23 +24,25 @@ Any kernel providing zoned block device support, starting with kernel version
 ### License
 
 *libzbd* is distributed under the terms of the of the GNU Lesser General Public
-License Version 2 or later (LGPL-2.0-or-later). A copy of this license with the
-library copyright can be found in the COPYING file.
+License Version 3 or later (LGPL-3.0-or-later). A copy of this license can be
+found in the file [LICENSES/LGPL-3.0-or-later.txt](LICENSES/LGPL-3.0-or-later.txt).
 
-All example applications under the tools directory are also distributed under
-the terms of the GNU Lesser General Public License version 2, or any later
-version.
+All example applications under the tools directory are distributed under
+the terms of the GNU General Public License version 3, or any later version.
+A copy of this license can be found in the file
+[LICENSES/GPL-3.0-or-later.txt](LICENSES/GPL-3.0-or-later.txt).
 
 *libzbd* and all its example applications are distributed "as is," without
 technical support, and WITHOUT ANY WARRANTY, without even the implied warranty
 of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. Along with *libzbd*, you
-should have received a copy of the GNU Lesser General Public License version 2.
-If not, please see http://www.gnu.org/licenses/.
+should have received a copy of the GNU Lesser General Public License version 3.
+If not, please see https://www.gnu.org/licenses/lgpl-3.0.html.
 
 ### Contributions and Bug Reports
 
 Contributions are accepted as github pull requests. Any problem may also be
 reported through github issue page or by contacting:
+
 * Damien Le Moal (damien.lemoal@wdc.com)
 * Niklas Cassel (niklas.cassel@wdc.com)
 
