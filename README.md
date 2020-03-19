@@ -4,11 +4,12 @@ Copyright (C) 2020 Western Digital Corporation or its affiliates.
 # libzbd
 
 *libzbd* is a library providing functions to simplify the execution of zone
-operations on zoned block devices.
+management operations on zoned block devices.
 
-An example applications using *libzbd* is available under the tools directory.
-Additionally, graphical user interface applications are also implemented to
-visually represent the state and usage of zones of a zoned block device.
+An example command line application using *libzbd* is available under the tools
+directory. Additionally, graphical user interface applications are also
+implemented to visually represent the state and usage of zones of a zoned block
+device.
 
 ### Library version
 
@@ -47,36 +48,41 @@ THAT ARE VENDOR SAMPLES OR NOT PUBLICLY AVAILABLE.
 
 ## Compilation and installation
 
-*libzbd* requires that the autoconf, automake and libtool development packages
-be installed on the host used for compilation. The GTK3 and GTK3 development
-packages are necessary to compile the *gzbd* application. Installing these
-packages will automatically enable the compilation of the gzbd and gzbd-viewer
-graphical interface tools.
+*libzbd* requires the following packages for compilation:
+
+* autoconf
+* autoconf-archive
+* automake
+* libtool
+
+The GTK3 and GTK3 development packages must be installed to automatically enable
+compiling the *gzbd* and *gzbd-viewer* applications.
 
 To compile the library and all example applications under the tools directory,
 execute the following commands.
 
 ```
-# sh ./autogen.sh
-# ./configure
-# make
+$ sh ./autogen.sh
+$ ./configure
+$ make
 ```
 
 To install the library and all example applications compiled under the tools
 directory, execute the following command.
 
 ```
-# sudo make install
+$ sudo make install
 ```
 
-The library file is by default installed under /usr/lib (or /usr/lib64). The
-library header files are installed in /usr/include/libzbd. The executable files
-for the example applications are installed under /usr/bin. These defaults can be
-changed using the configure script. Executing the following command displays the
-options used to control the installation paths.
+The library file is by default installed under `/usr/lib` (or `/usr/lib64`). The
+library header file is installed in `/usr/include/libzbd`. The executable files
+for the example applications are installed under `/usr/bin`.
+
+These default installation pathes can be changed. Executing the following
+command displays the options used to control the installation paths.
 
 ```
-# ./configure --help
+$ ./configure --help
 ```
 
 ## Library Overview
