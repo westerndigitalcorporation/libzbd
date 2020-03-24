@@ -303,7 +303,7 @@ int gzv_report_zones(unsigned int zno_start, unsigned int nr_zones)
 
 	/* Get zone information */
 	ret = zbd_report_zones(gzv.dev_fd,
-			       zbd_zone_start(&gzv.zones[zno_start]) << 9,
+			       zbd_zone_start(&gzv.zones[zno_start]),
 			       nrz * gzv.info.zone_size,
 			       ZBD_RO_ALL, &gzv.zones[zno_start], &nrz);
 	if (ret) {
