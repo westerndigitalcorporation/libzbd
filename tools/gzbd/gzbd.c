@@ -124,7 +124,7 @@ int main(int argc, char **argv)
 		dz.dev[i].dev_fd = -1;
 
 	init_ret = gtk_init_with_args(&argc, &argv,
-				      "Zoned block device zone state GUI",
+				      "<path to zoned block device>",
 				      options, NULL, &error);
 	if (init_ret == FALSE ||
 	    error != NULL) {
