@@ -1,0 +1,94 @@
+.\"  SPDX-License-Identifier: GPL-3.0-or-later
+.\"  SPDX-FileCopyrightText: 2020, Western Digital Corporation or its affiliates.
+.\"  Written by Damien Le Moal <damien.lemoal@wdc.com>
+.\"
+.TH GZBD-VIEWER 8
+.SH NAME
+gzbd-viewer \- zoned block devices zone state graphical interface
+
+.SH SYNOPSIS
+.B gzbd-viewer
+[options]
+.I device
+
+.SH DESCRIPTION
+.B gzbd-viewer
+is used to dynamically display the state of zones of a zoned block device.
+Each zone is displayed as a box representing the sector range of the zone.
+A zone box is filled with different colors based on the zone type and on
+the use of sectors within the zone. The condition of zones is indicated
+by highlighting a zone box border with different colors.
+
+.B Zone type and usage color codes
+.TS
+tab(:);
+l l.
+Magenta:Conventional zones
+Red:Written sectors of a sequential zone
+Green:Unwritten and usable sectors of a sequential zone
+Rosy brown:Unusable sectors of a sequential zone
+.TE
+
+.B Zone condition color codes
+.TS
+tab(:);
+l l.
+Light blue:Explicitly opened zones
+Dark blue:Implicitly opened zones
+Dark orange:Closed zones
+Grey:Offline zones
+.TE
+
+.PP
+The
+.I device
+argument must be the pathname of the target zoned block device.
+
+.PP
+By default, \fBgzbd-viewer\fP will display at most 100 zones using a
+10 x 10 grid. This default display size can be changed using options
+as explained below.
+
+.SH OPTIONS
+.TP
+.BR \-? , " \-\-help"
+Show help options and exit.
+.TP
+.BR \-\-help\-all
+Show all help options and exit.
+.TP
+.BR \-\-help\-gtk
+Show GTK+ options and exit.
+.TP
+.BR \-v , " \-\-verbose"
+Use libzbd verbose mode (for debug).
+.TP
+.BR \-i , " \-\-interval " \fImsec\fP
+Set refresh interval to \fImsec\fP milliseconds (default: 500).
+.TP
+.BR \-w , " \-\-width " \fIcolumns\fP
+Display zones in a matrix of \fIcolumns\fP columns.
+.TP
+.BR \-h , " \-\-height " \fIrows\fP
+Display zones in a matrix of \fIrows\fP rows.
+.TP
+.BR \-b , " \-\-block " \fIsize\fP
+Use \fIsize\fP as the unit for displaying a zone position,
+length and write pointer position instead of the default byte
+value.
+.TP
+.BR \-\-display=DISPLAY
+Specify the X display to use.
+
+.SH AUTHOR
+.nf
+Damien Le Moal <damien.lemoal@wdc.com>
+.fi
+
+.SH SEE ALSO
+.BR zbd (8) ", " gzbd (8)
+
+.SH AVAILABILITY
+The gzbd-viewer utility is part of the libzbd library available from
+.UR https://\:github.com\:/westerndigitalcorporation\:/libzbd
+.UE .

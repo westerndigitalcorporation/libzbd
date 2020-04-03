@@ -12,3 +12,5 @@ gzbd_viewer_SOURCES = \
 
 gzbd_viewer_CFLAGS = $(CFLAGS) $(GTK_CFLAGS)
 gzbd_viewer_LDADD = $(libzbd_ldadd) $(GTK_LIBS)
+
+man8_MANS += tools/gzbd-viewer/gzbd-viewer.8
