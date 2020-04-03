@@ -1,0 +1,149 @@
+.\"  SPDX-License-Identifier: GPL-3.0-or-later
+.\"  SPDX-FileCopyrightText: 2020, Western Digital Corporation or its affiliates.
+.\"  Written by Damien Le Moal <damien.lemoal@wdc.com>
+.\"
+.TH ZBD 8
+.SH NAME
+zbd \- manage zoned block devices 
+
+.SH SYNOPSIS
+.B zbd
+.I command
+[options]
+.I device
+
+.SH DESCRIPTION
+.B zbd
+is used to manipulate zones of a zoned block device. Zoned block devies are
+block devices that support the SCSI Zoned Block Commands (ZBC),
+ATA Zoned-device ATA Commands (ZAC) or NVMe Zoned NameSpace commands (ZNS).
+The zones to operate on can be specified using the offset and length options.
+.PP
+The
+.I device
+argument must be the pathname of the target zoned block device.
+
+.SH COMMANDS
+.SS report
+The command \fBzbd report\fP is used to obtain and display the device zone
+information.
+.PP
+By default, the command will report all zones from the start of the device
+up to the last zone of the device. Options may be used to modify this behavior,
+changing the starting zone or the size of the report.
+
+.B Report output
+.TS
+tab(:);
+l l.
+Zone:Zone number
+type:Type of the zone
+ofst:Zone start offset in Bytes
+len:Zone length in Bytes
+cap:Zone usable capacity in Bytes
+wp:Zone write pointer position in Bytes
+cond:Zone condition
+non_seq:Non-sequential write resources active
+reset:Reset write pointer recommended
+.TE
+
+.B Zone types
+.TS
+tab(:);
+l l.
+cnv:Conventional
+swr:Sequential write required
+swp:Sequential write preferred
+???:Unknown (should not be reported)
+.TE
+
+.B Zone conditions
+.TS
+tab(:);
+l l.
+nw:Not write pointer
+em:Empty
+fu:Full
+oe:Explicitly opened
+oi:Implicitly opened
+cl:Closed
+ol:Offline
+ro:Read only
+??:Reserved conditions (should not be reported)
+.TE
+
+.SS reset
+The command \fBzbd reset\fP is used to reset the write pointer of one or
+more zones.
+
+.SS open
+The command \fBzbd open\fP is used to explicitly open one or more zones.
+
+.SS close
+The command \fBzbd close\fP is used to close one or more zones.
+
+.SS finish
+The command \fBzbd finish\fP is used to finish (transition to full) one
+or more zones.
+
+.PP
+By default, all commands will operate from the zone at device offset 0 and
+operate on all zones. Options may be used to modify this behavior as
+explained below.
+
+.SH OPTIONS
+Options applicable to all commands are as follows.
+.TP
+.BR \-v
+Verbose mode (for debug).
+.TP
+.BR \-i
+Display device information before executing the command.
+.TP
+.BR "\-ofst " \fIoffset\fP
+Start offset in Bytes of the first zone to operate on.
+.TP
+.BR "\-len " \fIlength\fP
+Length in Bytes of the range of zones to operate on.
+.TP
+.BR \-h , " \-\-help"
+Display help text and exit.
+.TP
+Options applicable only to the \fBzbd report\fP command are as follows.
+.TP
+.BR \-csv
+Output zone information using the comma-separated (csv) format.
+.TP
+.BR \-n
+Display the number of zones that are to be reported and exit.
+.TP
+.BR "\-ro " \fIfilter\fP
+Sepcify reporting option to filter the zone report. \fIfilter\fP
+can be one of the following.
+.TS
+tab(:);
+l l.
+em:Empty zones
+oi:Implicitly opened zones
+oe:Explicitly opened zones
+cl:Closed zones
+fu:Full zones
+ro:Read only zones
+ol:Offline zones
+nw:Conventional zones
+ns:Non_seq write resource zones
+rw:Reset write pointer recommended zones
+.TE
+
+.SH AUTHOR
+.nf
+Damien Le Moal <damien.lemoal@wdc.com>
+.fi
+
+.SH SEE ALSO
+.BR blkzone (8)
+
+.SH AVAILABILITY
+The zbd command is part of the libzbd library available from
+.UR https://\:github.com\:/westerndigitalcorporation\:/libzbd
+.UE .

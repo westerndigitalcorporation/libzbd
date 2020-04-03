@@ -23,6 +23,8 @@ bin_PROGRAMS =
 lib_LTLIBRARIES =
 noinst_PROGRAMS =
 
+man8_MANS =
+
 libzbd_ldadd = $(LDADD) libzbd.la
 
 pkginclude_HEADERS += include/libzbd/zbd.h
