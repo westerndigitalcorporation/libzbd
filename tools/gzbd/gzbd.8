@@ -1,0 +1,61 @@
+.\"  SPDX-License-Identifier: GPL-3.0-or-later
+.\"  SPDX-FileCopyrightText: 2020, Western Digital Corporation or its affiliates.
+.\"  Written by Damien Le Moal <damien.lemoal@wdc.com>
+.\"
+.TH GZBD 8
+.SH NAME
+gzbd \- zoned block device management graphical interface
+
+.SH SYNOPSIS
+.B gzbd
+[options]
+.I device
+
+.SH DESCRIPTION
+.B gzbd
+is a graphical user interface allowing to view a zoned block device zones
+and to execute zone commands. The zone reset, open, close an finish commands
+can be applied to zones selected from the list of zones displayed.
+The list of zones displayed can be filtered based on zone type and condition.
+Zones are also represented graphically using colored boxes using a similar
+color coding as gzbd-viewer.
+
+.PP
+The
+.I device
+argument must be the pathname of the target zoned block device.
+
+.SH OPTIONS
+.TP
+.BR \-? , " \-\-help"
+Show help options and exit.
+.TP
+.BR \-\-help\-all
+Show all help options and exit.
+.TP
+.BR \-\-help\-gtk
+Show GTK+ options and exit.
+.TP
+.BR \-v , " \-\-verbose"
+Use libzbd verbose mode (for debug).
+.TP
+.BR \-b , " \-\-block " \fIsize\fP
+Use \fIsize\fP as the unit for displaying a zone position,
+length and write pointer position instead of the default byte
+value.
+.TP
+.BR \-\-display=DISPLAY
+Specify the X display to use.
+
+.SH AUTHOR
+.nf
+Damien Le Moal <damien.lemoal@wdc.com>
+.fi
+
+.SH SEE ALSO
+.BR zbd (8) ", " gzbd-viewer (8)
+
+.SH AVAILABILITY
+The gzbd utility is part of the libzbd library available from
+.UR https://\:github.com\:/westerndigitalcorporation\:/libzbd
+.UE .

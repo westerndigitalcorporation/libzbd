@@ -11,3 +11,5 @@ gzbd_SOURCES = \
 
 gzbd_CFLAGS = $(CFLAGS) $(GTK_CFLAGS)
 gzbd_LDADD = $(libzbd_ldadd) $(GTK_LIBS)
+
+man8_MANS += tools/gzbd/gzbd.8
