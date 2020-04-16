@@ -30,9 +30,12 @@ CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
 CC="$PTHREAD_CC"
 
 # Checks for header files.
-AC_CHECK_HEADER(libgen.h, [], [AC_MSG_ERROR([Couldn't find libgen.h])])
+AC_CHECK_HEADER(libgen.h, [],
+		[AC_MSG_ERROR([Couldn't find libgen.h])],
+		[[#include <libgen.h>]])
 AC_CHECK_HEADER(linux/blkzoned.h, [],
-		[AC_MSG_ERROR([Couldn't find linux/blkzoned.h. Kernel too old ?])])
+		[AC_MSG_ERROR([Couldn't find linux/blkzoned.h. Kernel too old ?])],
+		[[#include <linux/blkzoned.h>]])
 
 # Conditionals
 
