@@ -13,7 +13,7 @@ HFILES = \
 
 libzbd_la_DEPENDENCIES = exports
 libzbd_la_SOURCES = $(CFILES) $(HFILES)
-libzbd_la_CFLAGS = $(AM_CFLAGS)
+libzbd_la_CFLAGS = $(AM_CFLAGS) -fPIC
 libzbd_la_LDFLAGS = \
         -Wl,--version-script,$(top_srcdir)/exports \
 	-release '$(PACKAGE_VERSION)'

@@ -8,6 +8,8 @@
 #ifndef __LIBZBD_INTERNAL_H__
 #define __LIBZBD_INTERNAL_H__
 
+#define _GNU_SOURCE
+
 #include "libzbd/zbd.h"
 #include "config.h"
 
