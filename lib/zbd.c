@@ -256,7 +256,7 @@ static struct zbd_info *zbd_do_get_info(int fd, char *devname)
 		goto err;
 	}
 	zbdi->zone_sectors = zone_sectors;
-	zbdi->zone_size = zone_sectors << 9;
+	zbdi->zone_size = (size_t)zone_sectors << 9;
 
 	/* Get number of zones */
 	ret = ioctl(fd, BLKGETNRZONES, &nr_zones);
