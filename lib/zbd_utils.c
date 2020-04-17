@@ -82,7 +82,7 @@ static struct zbd_str zbd_ztype_str[] = {
 /**
  * zbd_zone_type_str - returns a string describing a zone type
  */
-const char *zbd_zone_type_str(struct blk_zone *z, bool s)
+const char *zbd_zone_type_str(struct zbd_zone *z, bool s)
 {
 	return zbd_get_str(zbd_ztype_str, z->type, s);
 }
@@ -101,7 +101,7 @@ static struct zbd_str zbd_zcond_str[] = {
 /**
  * zbd_zone_cond_str - Returns a string describing a zone condition
  */
-const char *zbd_zone_cond_str(struct blk_zone *z, bool s)
+const char *zbd_zone_cond_str(struct zbd_zone *z, bool s)
 {
 	return zbd_get_str(zbd_zcond_str, z->cond, s);
 }

@@ -77,7 +77,7 @@ static int zbd_mgmt(int fd, struct zbd_opts *opts)
 	return ret;
 }
 
-static void zbd_print_zone(struct zbd_opts *opts, struct blk_zone *z)
+static void zbd_print_zone(struct zbd_opts *opts, struct zbd_zone *z)
 {
 	unsigned int zno = zbd_zone_start(z) / opts->dev_info.zone_size;
 
@@ -88,13 +88,13 @@ static void zbd_print_zone(struct zbd_opts *opts, struct blk_zone *z)
 		       zbd_zone_start(z) / opts->unit,
 		       zbd_zone_len(z) / opts->unit,
 		       zbd_zone_wp(z) / opts->unit,
-		       z->cond,
-		       z->non_seq ? 1 : 0,
-		       z->reset ? 1 : 0);
+		       zbd_zone_cond(z),
+		       zbd_zone_non_seq_resources(z) ? 1 : 0,
+		       zbd_zone_rwp_recommended(z) ? 1 : 0);
 		return;
 	}
 
-	if (zbd_zone_conventional(z)) {
+	if (zbd_zone_cnv(z)) {
 		printf("Zone %05u: %s, ofst %014llu, len %014llu\n",
 		       zno,
 		       zbd_zone_type_str(z, true),
@@ -103,7 +103,7 @@ static void zbd_print_zone(struct zbd_opts *opts, struct blk_zone *z)
 		return;
 	}
 
-	if (zbd_zone_sequential(z)) {
+	if (zbd_zone_seq(z)) {
 		printf("Zone %05u: %s, ofst %014llu, len %014llu, "
 		       "wp %014llu, %s, non_seq %01d, reset %01d\n",
 		       zno,
@@ -112,8 +112,8 @@ static void zbd_print_zone(struct zbd_opts *opts, struct blk_zone *z)
 		       zbd_zone_len(z) / opts->unit,
 		       zbd_zone_wp(z) / opts->unit,
 		       zbd_zone_cond_str(z, true),
-		       z->non_seq ? 1 : 0,
-		       z->reset ? 1 : 0);
+		       zbd_zone_non_seq_resources(z) ? 1 : 0,
+		       zbd_zone_rwp_recommended(z) ? 1 : 0);
 		return;
 	}
 
@@ -125,7 +125,7 @@ static void zbd_print_zone(struct zbd_opts *opts, struct blk_zone *z)
 
 static int zbd_report(int fd, struct zbd_opts *opts)
 {
-	struct blk_zone *zones = NULL;
+	struct zbd_zone *zones = NULL;
 	unsigned int i, nz;
 	int ret;
 
@@ -151,7 +151,7 @@ static int zbd_report(int fd, struct zbd_opts *opts)
 	if (!nz)
 		return 0;
 
-	zones = (struct blk_zone *) calloc(nz, sizeof(struct blk_zone));
+	zones = (struct zbd_zone *) calloc(nz, sizeof(struct zbd_zone));
 	if (!zones) {
 		fprintf(stderr, "No memory\n");
 		return 1;

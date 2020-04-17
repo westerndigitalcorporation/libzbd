@@ -174,23 +174,22 @@ static int dz_report_zones(dz_dev_t *dzd)
 		dzd->zone_ro = ZBD_RO_ALL;
 		ret = zbd_list_zones(dzd->dev_fd,
 				     0, 0, dzd->zone_ro,
-				     &dzd->blkz, &dzd->nr_zones);
+				     &dzd->zbdz, &dzd->nr_zones);
 		if (ret != 0)
 			return ret;
 
 		/* Allocate zone array */
 		dzd->max_nr_zones = dzd->nr_zones;
-		dzd->zones = (dz_dev_zone_t *) calloc(dzd->max_nr_zones,
-						      sizeof(dz_dev_zone_t));
+		dzd->zones = (dz_dev_zone_t *)
+			calloc(dzd->max_nr_zones, sizeof(dz_dev_zone_t));
 		if (!dzd->zones)
 			return -ENOMEM;
 
 		for (i = 0; i < dzd->max_nr_zones; i++) {
 			dzd->zones[i].no = i;
 			dzd->zones[i].visible = 1;
-			memcpy(&dzd->zones[i].info,
-			       &dzd->blkz[i],
-			       sizeof(struct blk_zone));
+			memcpy(&dzd->zones[i].info, &dzd->zbdz[i],
+			       sizeof(struct zbd_zone));
 		}
 
 		return 0;
@@ -201,7 +200,7 @@ static int dz_report_zones(dz_dev_t *dzd)
 	dzd->nr_zones = dzd->max_nr_zones;
 	ret = zbd_report_zones(dzd->dev_fd,
 			       0, 0, dzd->zone_ro,
-			       dzd->blkz, &dzd->nr_zones);
+			       dzd->zbdz, &dzd->nr_zones);
 	if (ret != 0) {
 		fprintf(stderr, "Get zone information failed %d (%s)\n",
 			errno, strerror(errno));
@@ -212,10 +211,9 @@ static int dz_report_zones(dz_dev_t *dzd)
 	for (i = 0; i < dzd->max_nr_zones; i++) {
 		if (j < dzd->nr_zones &&
 		    zbd_zone_start(&dzd->zones[i].info) ==
-		    zbd_zone_start(&dzd->blkz[j])) {
-			memcpy(&dzd->zones[i].info,
-			       &dzd->blkz[j],
-			       sizeof(struct blk_zone));
+		    zbd_zone_start(&dzd->zbdz[j])) {
+			memcpy(&dzd->zones[i].info, &dzd->zbdz[j],
+			       sizeof(struct zbd_zone));
 			dzd->zones[i].visible = 1;
 			j++;
 		} else {
@@ -380,8 +378,8 @@ void dz_close(dz_dev_t *dzd)
 	if (dzd->dev_fd < 0)
 		return;
 
-	free(dzd->blkz);
-	dzd->blkz = NULL;
+	free(dzd->zbdz);
+	dzd->zbdz = NULL;
 
 	free(dzd->zones);
 	dzd->zones = NULL;

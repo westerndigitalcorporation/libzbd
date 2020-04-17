@@ -14,14 +14,78 @@
 extern "C" {
 #endif
 
-#define _LARGEFILE64_SOURCE
-
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
 #include <linux/blkzoned.h>
+
+/**
+ * @brief Zone types
+ *
+ * @ZBD_ZONE_TYPE_CNV: The zone has no write pointer and can be writen
+ *                     randomly. Zone reset has no effect on the zone.
+ * @ZBD_ZONE_TYPE_SWR: The zone must be written sequentially
+ * @ZBD_ZONE_TYPE_SWP: The zone can be written randomly
+ */
+enum zbd_zone_type {
+	ZBD_ZONE_TYPE_CNV	= BLK_ZONE_TYPE_CONVENTIONAL,
+	ZBD_ZONE_TYPE_SWR	= BLK_ZONE_TYPE_SEQWRITE_REQ,
+	ZBD_ZONE_TYPE_SWP	= BLK_ZONE_TYPE_SEQWRITE_PREF,
+};
+
+/**
+ * @brief Zone conditions (state)
+ *
+ * @ZBD_ZONE_COND_NOT_WP: The zone has no write pointer, it is conventional.
+ * @ZBD_ZONE_COND_EMPTY: The zone is empty.
+ * @ZBD_ZONE_COND_IMP_OPEN: The zone is open, but not explicitly opened.
+ * @ZBD_ZONE_COND_EXP_OPEN: The zones was explicitly opened by an
+ *                          OPEN ZONE command.
+ * @ZBD_ZONE_COND_CLOSED: The zone was [explicitly] closed after writing.
+ * @ZBD_ZONE_COND_FULL: The zone is marked as full, possibly by a zone
+ *                      FINISH ZONE command.
+ * @ZBD_ZONE_COND_READONLY: The zone is read-only.
+ * @ZBD_ZONE_COND_OFFLINE: The zone is offline (dead).
+ */
+enum zbd_zone_cond {
+	ZBD_ZONE_COND_NOT_WP	= BLK_ZONE_COND_NOT_WP,
+	ZBD_ZONE_COND_EMPTY	= BLK_ZONE_COND_EMPTY,
+	ZBD_ZONE_COND_IMP_OPEN	= BLK_ZONE_COND_IMP_OPEN,
+	ZBD_ZONE_COND_EXP_OPEN	= BLK_ZONE_COND_EXP_OPEN,
+	ZBD_ZONE_COND_CLOSED	= BLK_ZONE_COND_CLOSED,
+	ZBD_ZONE_COND_FULL	= BLK_ZONE_COND_FULL,
+	ZBD_ZONE_COND_READONLY	= BLK_ZONE_COND_READONLY,
+	ZBD_ZONE_COND_OFFLINE	= BLK_ZONE_COND_OFFLINE,
+};
+
+/**
+ * @brief Zone flags
+ *
+ * @ZBD_ZONE_RWP_RECOMMENDED: The zone should be reset.
+ * @ZBD_ZONE_NON_SEQ: The zone is using non-sequential write resources.
+ */
+enum zbd_zone_flags {
+	ZBD_ZONE_RWP_RECOMMENDED	= (1U << 0),
+	ZBD_ZONE_NON_SEQ_RESOURCES	= (1U << 1),
+};
+
+/**
+ * @brief Zone descriptor data structure
+ *
+ * Provide information on a zone with all position and size values in bytes.
+ */
+struct zbd_zone {
+	unsigned long long	start;		/* Zone start */
+	unsigned long long	len;		/* Zone length */
+	unsigned long long	wp;		/* Zone write pointer */
+	unsigned int		flags;		/* Zone flags */
+	enum zbd_zone_type	type;		/* Zone type */
+	enum zbd_zone_cond	cond;		/* Zone condition */
+	uint8_t			reserved[8];
+};
 
 /**
  * @brief Library log levels
@@ -48,16 +112,19 @@ enum zbd_log_level {
  */
 extern void zbd_set_log_level(enum zbd_log_level);
 
-#define ZBD_VENDOR_ID_LENGTH  32
-
 /**
- * Block device zone models.
+ * @brief Block device zone models.
  */
 enum zbd_dev_model {
         ZBD_DM_HOST_MANAGED = 1,
 	ZBD_DM_HOST_AWARE,
         ZBD_DM_NOT_ZONED,
 };
+
+/**
+ * @brief Device information vendor id string maximum length.
+ */
+#define ZBD_VENDOR_ID_LENGTH	32
 
 /**
  * @brief Device information data structure
@@ -129,6 +196,10 @@ struct zbd_info {
 	 */
 	unsigned int		nr_zones;
 
+	/**
+	 * Reserved.
+	 */
+	unsigned int		reserved[8];
 };
 
 /**
@@ -254,7 +325,7 @@ enum zbd_report_option {
  */
 extern int zbd_report_zones(int fd, off_t ofst, off_t len,
 			    enum zbd_report_option ro,
-			    struct blk_zone *zones, unsigned int *nr_zones);
+			    struct zbd_zone *zones, unsigned int *nr_zones);
 
 /**
  * @brief Get the number of zones matches
@@ -299,7 +370,7 @@ static inline int zbd_report_nr_zones(int fd, off_t ofst, off_t len,
  */
 extern int zbd_list_zones(int fd, off_t ofst, off_t len,
 			  enum zbd_report_option ro,
-			  struct blk_zone **zones, unsigned int *nr_zones);
+			  struct zbd_zone **zones, unsigned int *nr_zones);
 
 /**
  * @brief Zone management operations.
@@ -399,28 +470,33 @@ static inline int zbd_finish_zones(int fd, off_t ofst, off_t len)
 	return zbd_zones_operation(fd, ZBD_OP_FINISH, ofst, len);
 }
 
-/*
+/**
  * Accessors
  */
-#define zbd_zone_type(z)	((int)(z)->type)
-#define zbd_zone_conventional(z) ((z)->type == BLK_ZONE_TYPE_CONVENTIONAL)
-#define zbd_zone_sequential_req(z) ((z)->type == BLK_ZONE_TYPE_SEQWRITE_REQ)
-#define zbd_zone_sequential_pref(z) ((z)->type == BLK_ZONE_TYPE_SEQWRITE_PREF)
-#define zbd_zone_sequential(z) 	(zbd_zone_sequential_req(z) || zbd_zone_sequential_pref(z))
-#define zbd_zone_condition(z)	((int)(z)->cond)
-#define zbd_zone_not_wp(z)	((z)->cond == BLK_ZONE_COND_NOT_WP)
-#define zbd_zone_empty(z)	((z)->cond == BLK_ZONE_COND_EMPTY)
-#define zbd_zone_imp_open(z)	((z)->cond == BLK_ZONE_COND_IMP_OPEN)
-#define zbd_zone_exp_open(z)	((z)->cond == BLK_ZONE_COND_EXP_OPEN)
-#define zbd_zone_is_open(z)	(zbd_zone_imp_open(z) || \
-				 zbd_zone_exp_open(z))
-#define zbd_zone_closed(z)	((z)->cond == BLK_ZONE_COND_CLOSED)
-#define zbd_zone_full(z)	((z)->cond == BLK_ZONE_COND_FULL)
-#define zbd_zone_rdonly(z)	((z)->cond == BLK_ZONE_COND_READONLY)
-#define zbd_zone_offline(z)	((z)->cond == BLK_ZONE_COND_OFFLINE)
-#define zbd_zone_start(z)	((unsigned long long)(z)->start)
-#define zbd_zone_len(z)		((unsigned long long)(z)->len)
-#define zbd_zone_wp(z)		((unsigned long long)(z)->wp)
+#define zbd_zone_type(z)	((z)->type)
+#define zbd_zone_cnv(z)		((z)->type == ZBD_ZONE_TYPE_CNV)
+#define zbd_zone_swr(z)		((z)->type == ZBD_ZONE_TYPE_SWR)
+#define zbd_zone_swp(z)		((z)->type == ZBD_ZONE_TYPE_SWP)
+#define zbd_zone_seq(z) 	(zbd_zone_swr(z) || zbd_zone_swp(z))
+
+#define zbd_zone_cond(z)	((z)->cond)
+#define zbd_zone_not_wp(z)	((z)->cond == ZBD_ZONE_COND_NOT_WP)
+#define zbd_zone_empty(z)	((z)->cond == ZBD_ZONE_COND_EMPTY)
+#define zbd_zone_imp_open(z)	((z)->cond == ZBD_ZONE_COND_IMP_OPEN)
+#define zbd_zone_exp_open(z)	((z)->cond == ZBD_ZONE_COND_EXP_OPEN)
+#define zbd_zone_is_open(z)	(zbd_zone_imp_open(z) || zbd_zone_exp_open(z))
+#define zbd_zone_closed(z)	((z)->cond == ZBD_ZONE_COND_CLOSED)
+#define zbd_zone_full(z)	((z)->cond == ZBD_ZONE_COND_FULL)
+#define zbd_zone_rdonly(z)	((z)->cond == ZBD_ZONE_COND_READONLY)
+#define zbd_zone_offline(z)	((z)->cond == ZBD_ZONE_COND_OFFLINE)
+
+#define zbd_zone_start(z)	((z)->start)
+#define zbd_zone_len(z)		((z)->len)
+#define zbd_zone_wp(z)		((z)->wp)
+
+#define zbd_zone_flags(z)	((z)->flags)
+#define zbd_zone_rwp_recommended(z)   ((z)->flags & ZBD_ZONE_RWP_RECOMMENDED)
+#define zbd_zone_non_seq_resources(z) ((z)->flags & ZBD_ZONE_NON_SEQ_RESOURCES)
 
 /**
  * @brief Returns a string describing a device zone model
@@ -431,7 +507,7 @@ static inline int zbd_finish_zones(int fd, off_t ofst, off_t len)
  *
  * @return Device model string or NULL for an invalid model.
  */
-const char *zbd_device_model_str(enum zbd_dev_model model, bool s);
+extern const char *zbd_device_model_str(enum zbd_dev_model model, bool s);
 
 /**
  * @brief Returns a string describing a zone type
@@ -442,7 +518,7 @@ const char *zbd_device_model_str(enum zbd_dev_model model, bool s);
  *
  * @return Zone type string or NULL for an invalid zone type.
  */
-const char *zbd_zone_type_str(struct blk_zone *z, bool s);
+extern const char *zbd_zone_type_str(struct zbd_zone *z, bool s);
 
 /**
  * @brief Returns a string describing a zone condition
@@ -453,7 +529,7 @@ const char *zbd_zone_type_str(struct blk_zone *z, bool s);
  *
  * @return Zone type string or NULL for an invalid zone condition.
  */
-const char *zbd_zone_cond_str(struct blk_zone *z, bool s);
+extern const char *zbd_zone_cond_str(struct zbd_zone *z, bool s);
 
 #ifdef __cplusplus
 }

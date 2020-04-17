@@ -46,7 +46,7 @@ typedef struct dz_dev_zone {
 
 	int			no;
 	int			visible;
-	struct blk_zone		info;
+	struct zbd_zone		info;
 
 } dz_dev_zone_t;
 
@@ -69,7 +69,7 @@ typedef struct dz_dev {
 	int			zone_no;
 	unsigned int		max_nr_zones;
 	unsigned int		nr_zones;
-	struct blk_zone		*blkz;
+	struct zbd_zone		*zbdz;
 	dz_dev_zone_t		*zones;
 
 	/**

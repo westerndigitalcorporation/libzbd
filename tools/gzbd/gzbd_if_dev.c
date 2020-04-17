@@ -599,7 +599,7 @@ static void dz_if_zlist_print_zone_type(GtkTreeViewColumn *col,
 					gpointer user_data)
 {
 	dz_dev_t *dzd = (dz_dev_t *) user_data;
-	struct blk_zone *z;
+	struct zbd_zone *z;
 	char str[64];
 	int i;
 
@@ -609,11 +609,11 @@ static void dz_if_zlist_print_zone_type(GtkTreeViewColumn *col,
 	/* Normal black font */
 	g_object_set(renderer, "foreground", "Black",
 		     "foreground-set", TRUE, NULL);
-	if (zbd_zone_conventional(z))
+	if (zbd_zone_cnv(z))
 		strncpy(str, "Conventional", sizeof(str));
-	else if (zbd_zone_sequential_req(z))
+	else if (zbd_zone_swr(z))
 		strncpy(str, "Seq write req.", sizeof(str));
-	else if (zbd_zone_sequential_pref(z))
+	else if (zbd_zone_swp(z))
 		strncpy(str, "Seq write pref.", sizeof(str));
 	else
 		snprintf(str, sizeof(str), "??? (0x%01x)", zbd_zone_type(z));
@@ -627,7 +627,7 @@ static void dz_if_zlist_print_zone_cond(GtkTreeViewColumn *col,
 					gpointer user_data)
 {
 	dz_dev_t *dzd = (dz_dev_t *) user_data;
-	struct blk_zone *z;
+	struct zbd_zone *z;
 	char str[64];
 	int i;
 
@@ -674,7 +674,7 @@ static void dz_if_zlist_print_zone_rwp_recommended(GtkTreeViewColumn *col,
 						   gpointer user_data)
 {
 	dz_dev_t *dzd = (dz_dev_t *) user_data;
-	struct blk_zone *z;
+	struct zbd_zone *z;
 	char str[64];
 	int i;
 
@@ -682,7 +682,7 @@ static void dz_if_zlist_print_zone_rwp_recommended(GtkTreeViewColumn *col,
 	z = &dzd->zones[i].info;
 
 	/* Zone rwp recommended */
-	if (z->reset) {
+	if (zbd_zone_rwp_recommended(z)) {
 		g_object_set(renderer, "foreground", "Red",
 			     "foreground-set", TRUE, NULL);
 		strncpy(str, "Yes", sizeof(str));
@@ -701,7 +701,7 @@ static void dz_if_zlist_print_zone_nonseq(GtkTreeViewColumn *col,
 					  gpointer user_data)
 {
 	dz_dev_t *dzd = (dz_dev_t *) user_data;
-	struct blk_zone *z;
+	struct zbd_zone *z;
 	char str[64];
 	int i;
 
@@ -709,7 +709,7 @@ static void dz_if_zlist_print_zone_nonseq(GtkTreeViewColumn *col,
 	z = &dzd->zones[i].info;
 
 	/* Zone non seq */
-	if (z->non_seq) {
+	if (zbd_zone_non_seq_resources(z)) {
 		g_object_set(renderer, "foreground", "Red",
 			     "foreground-set", TRUE, NULL);
 		strncpy(str, "Yes", sizeof(str));
@@ -740,7 +740,7 @@ static void dz_if_zlist_print_zone_start(GtkTreeViewColumn *col,
 					 gpointer user_data)
 {
 	dz_dev_t *dzd = (dz_dev_t *) user_data;
-	struct blk_zone *z;
+	struct zbd_zone *z;
 	char str[64];
 	int i;
 
@@ -761,7 +761,7 @@ static void dz_if_zlist_print_zone_len(GtkTreeViewColumn *col,
 				       gpointer user_data)
 {
 	dz_dev_t *dzd = (dz_dev_t *) user_data;
-	struct blk_zone *z;
+	struct zbd_zone *z;
 	char str[64];
 	int i;
 
@@ -781,7 +781,7 @@ static void dz_if_zlist_print_zone_wp(GtkTreeViewColumn *col,
 				      gpointer user_data)
 {
 	dz_dev_t *dzd = (dz_dev_t *) user_data;
-	struct blk_zone *z;
+	struct zbd_zone *z;
 	char str[64];
 	int i;
 
@@ -1021,7 +1021,7 @@ static void dz_if_zblock_set_cb(GtkEntry *entry, gpointer user_data)
 	dz_dev_t *dzd = (dz_dev_t *) user_data;
 	long long block = strtoll(gtk_entry_get_text(entry), NULL, 0);
 	unsigned long long bytes = block * dzd->block_size;
-	struct blk_zone *z;
+	struct zbd_zone *z;
 	unsigned int i;
 	int zno = -1;
 
@@ -1238,7 +1238,7 @@ static gboolean dz_if_zones_draw_cb(GtkWidget *widget, cairo_t *cr,
 	GtkAllocation allocation;
 	cairo_text_extents_t te;
 	unsigned long long cap = 0, sz;
-	struct blk_zone *z;
+	struct zbd_zone *z;
 	GdkRGBA color;
 	int w, h, x = 0, zw, ww;
 	char str[64];
@@ -1290,7 +1290,7 @@ static gboolean dz_if_zones_draw_cb(GtkWidget *widget, cairo_t *cr,
 				zw, h - (DZ_DRAW_HOFST * 2));
 		cairo_stroke_preserve(cr);
 
-		if (zbd_zone_conventional(z))
+		if (zbd_zone_cnv(z))
 			gdk_cairo_set_source_rgba(cr, &dz.conv_color);
 		else if (zbd_zone_full(z))
 			gdk_cairo_set_source_rgba(cr, &dz.seqw_color);
@@ -1298,7 +1298,7 @@ static gboolean dz_if_zones_draw_cb(GtkWidget *widget, cairo_t *cr,
 			gdk_cairo_set_source_rgba(cr, &dz.seqnw_color);
 		cairo_fill(cr);
 
-		if (!zbd_zone_conventional(z) &&
+		if (!zbd_zone_cnv(z) &&
 		    (zbd_zone_imp_open(z) ||
 		     zbd_zone_exp_open(z) ||
 		     zbd_zone_closed(z))) {

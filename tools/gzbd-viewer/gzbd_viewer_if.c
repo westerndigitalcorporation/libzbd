@@ -13,11 +13,11 @@
 
 static void gzv_set_zone_tooltip(struct gzv_zone *zone)
 {
-	struct blk_zone *blkz = zone->blkz;
+	struct zbd_zone *zbdz = zone->zbdz;
 	char info[512];
 	char bs[64];
 
-	if (!blkz) {
+	if (!zbdz) {
 		gtk_widget_set_has_tooltip(GTK_WIDGET(zone->da), false);
 		gtk_widget_set_tooltip_markup(GTK_WIDGET(zone->da), NULL);
 		return;
@@ -29,7 +29,7 @@ static void gzv_set_zone_tooltip(struct gzv_zone *zone)
 		snprintf(bs, sizeof(bs) - 1,
 			 "%d-B blocks", gzv.block_size);
 
-	if (zbd_zone_conventional(blkz)) {
+	if (zbd_zone_cnv(zbdz)) {
 		snprintf(info, sizeof(info) - 1,
 			 "<b>Zone %u</b>:\n"
 			 "  - Type: %s\n"
@@ -37,10 +37,10 @@ static void gzv_set_zone_tooltip(struct gzv_zone *zone)
 			 "  - Start offset: %llu %s\n"
 			 "  - Length: %llu %s",
 			 zone->zno,
-			 zbd_zone_type_str(blkz, false),
-			 zbd_zone_cond_str(blkz, false),
-			 zbd_zone_start(blkz), bs,
-			 zbd_zone_len(blkz), bs);
+			 zbd_zone_type_str(zbdz, false),
+			 zbd_zone_cond_str(zbdz, false),
+			 zbd_zone_start(zbdz), bs,
+			 zbd_zone_len(zbdz), bs);
 	} else {
 		snprintf(info, sizeof(info) - 1,
 			 "<b>Zone %u</b>:\n"
@@ -50,11 +50,11 @@ static void gzv_set_zone_tooltip(struct gzv_zone *zone)
 			 "  - Length: %llu %s\n"
 			 "  - WP offset: +%llu %s",
 			 zone->zno,
-			 zbd_zone_type_str(blkz, false),
-			 zbd_zone_cond_str(blkz, false),
-			 zbd_zone_start(blkz), bs,
-			 zbd_zone_len(blkz), bs,
-			 zbd_zone_wp(blkz) - zbd_zone_start(blkz), bs);
+			 zbd_zone_type_str(zbdz, false),
+			 zbd_zone_cond_str(zbdz, false),
+			 zbd_zone_start(zbdz), bs,
+			 zbd_zone_len(zbdz), bs,
+			 zbd_zone_wp(zbdz) - zbd_zone_start(zbdz), bs);
 	}
 
 	gtk_widget_set_tooltip_markup(GTK_WIDGET(zone->da), info);
@@ -63,7 +63,7 @@ static void gzv_set_zone_tooltip(struct gzv_zone *zone)
 
 static void gzv_if_update(void)
 {
-	struct blk_zone *blkz;
+	struct zbd_zone *zbdz;
 	unsigned int i, z;
 
 	if (gzv.grid_zno_first >= gzv.nr_zones)
@@ -75,14 +75,14 @@ static void gzv_if_update(void)
 	z = gzv.grid_zno_first;
 	for (i = 0; i < gzv.nr_grid_zones; i++) {
 		gzv.grid_zones[i].zno = z;
-		blkz = gzv.grid_zones[i].blkz;
+		zbdz = gzv.grid_zones[i].zbdz;
 		if (z >= gzv.nr_zones) {
-			if (blkz)
+			if (zbdz)
 				gtk_widget_hide(gzv.grid_zones[i].da);
-			gzv.grid_zones[i].blkz = NULL;
+			gzv.grid_zones[i].zbdz = NULL;
 		} else {
-			gzv.grid_zones[i].blkz = &gzv.zones[z];
-			if (!blkz)
+			gzv.grid_zones[i].zbdz = &gzv.zones[z];
+			if (!zbdz)
 				gtk_widget_show(gzv.grid_zones[i].da);
 		}
 		gzv_set_zone_tooltip(&gzv.grid_zones[i]);
@@ -117,14 +117,14 @@ static void gzv_if_delete_cb(GtkWidget *widget, GdkEvent *event,
 	gtk_main_quit();
 }
 
-static void gzv_if_zone_draw_written(struct blk_zone *blkz, cairo_t *cr,
+static void gzv_if_zone_draw_written(struct zbd_zone *zbdz, cairo_t *cr,
 				     GtkAllocation *allocation)
 {
-	if (zbd_zone_wp(blkz) > zbd_zone_start(blkz)) {
+	if (zbd_zone_wp(zbdz) > zbd_zone_start(zbdz)) {
 		/* Written space in zone */
 		long long w = (long long)allocation->width *
-			       (zbd_zone_wp(blkz) - zbd_zone_start(blkz)) /
-			zbd_zone_len(blkz);
+			       (zbd_zone_wp(zbdz) - zbd_zone_start(zbdz)) /
+			zbd_zone_len(zbdz);
 		if (w > allocation->width)
 			w = allocation->width;
 
@@ -156,7 +156,7 @@ static gboolean gzv_if_zone_draw_cb(GtkWidget *widget, cairo_t *cr,
 				    gpointer user_data)
 {
 	struct gzv_zone *zone = user_data;
-	struct blk_zone *blkz = zone->blkz;
+	struct zbd_zone *zbdz = zone->zbdz;
 	GtkAllocation allocation;
 
 	/* Current size */
@@ -165,39 +165,39 @@ static gboolean gzv_if_zone_draw_cb(GtkWidget *widget, cairo_t *cr,
 	gtk_render_background(gtk_widget_get_style_context(widget),
 			      cr, 0, 0, allocation.width, allocation.height);
 
-	if (!blkz)
+	if (!zbdz)
 		return TRUE;
 
 	/* Draw zone background */
-	if (zbd_zone_conventional(blkz)) {
+	if (zbd_zone_cnv(zbdz)) {
 		gdk_cairo_set_source_rgba(cr, &gzv.color_conv);
 		goto out_fill;
 	}
 
-	if (zbd_zone_full(blkz)) {
+	if (zbd_zone_full(zbdz)) {
 		gdk_cairo_set_source_rgba(cr, &gzv.color_seqw);
 		goto out_fill;
 	}
 
-	if (zbd_zone_offline(blkz)) {
+	if (zbd_zone_offline(zbdz)) {
 		gdk_cairo_set_source_rgba(cr, &gzv.color_of);
 		goto out_fill;
 	}
 
 	gdk_cairo_set_source_rgba(cr, &gzv.color_seq);
-	if (zbd_zone_empty(blkz))
+	if (zbd_zone_empty(zbdz))
 		goto out_fill;
 
 	/* Opened or closed zones */
 	cairo_rectangle(cr, 0, 0, allocation.width, allocation.height);
 	cairo_fill(cr);
 
-	gzv_if_zone_draw_written(blkz, cr, &allocation);
+	gzv_if_zone_draw_written(zbdz, cr, &allocation);
 
 	/* State highlight */
-	if (zbd_zone_imp_open(blkz))
+	if (zbd_zone_imp_open(zbdz))
 		gdk_cairo_set_source_rgba(cr, &gzv.color_oi);
-	else if (zbd_zone_exp_open(blkz))
+	else if (zbd_zone_exp_open(zbdz))
 		gdk_cairo_set_source_rgba(cr, &gzv.color_oe);
 	else
 		gdk_cairo_set_source_rgba(cr, &gzv.color_cl);

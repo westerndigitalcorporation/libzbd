@@ -406,67 +406,72 @@ int zbd_get_info(int fd, struct zbd_info *info)
 /*
  * zbd_should_report_zone - Test if a zone must be reported.
  */
-static bool zbd_should_report_zone(struct blk_zone *blkz,
+static bool zbd_should_report_zone(struct zbd_zone *zone,
 				   enum zbd_report_option ro)
 {
 	switch (ro) {
 	case ZBD_RO_ALL:
 		return true;
 	case ZBD_RO_NOT_WP:
-		return zbd_zone_not_wp(blkz);
+		return zbd_zone_not_wp(zone);
 	case ZBD_RO_EMPTY:
-		return zbd_zone_empty(blkz);
+		return zbd_zone_empty(zone);
 	case ZBD_RO_IMP_OPEN:
-		return zbd_zone_imp_open(blkz);
+		return zbd_zone_imp_open(zone);
 	case ZBD_RO_EXP_OPEN:
-		return zbd_zone_exp_open(blkz);
+		return zbd_zone_exp_open(zone);
 	case ZBD_RO_CLOSED:
-		return zbd_zone_closed(blkz);
+		return zbd_zone_closed(zone);
 	case ZBD_RO_FULL:
-		return zbd_zone_full(blkz);
+		return zbd_zone_full(zone);
 	case ZBD_RO_RDONLY:
-		return zbd_zone_rdonly(blkz);
+		return zbd_zone_rdonly(zone);
 	case ZBD_RO_OFFLINE:
-		return zbd_zone_offline(blkz);
+		return zbd_zone_offline(zone);
 	case ZBD_RO_RWP_RECOMMENDED:
-		return blkz->reset;
+		return zbd_zone_rwp_recommended(zone);
 	case ZBD_RO_NON_SEQ:
-		return blkz->non_seq;
+		return zbd_zone_non_seq_resources(zone);
 	default:
 		return false;
 	}
 }
 
 /*
- * zbd_report_zone - Fill zone report
+ * zbd_parse_zone - Fill a zone descriptor
  */
-static inline void zbd_report_zone(struct blk_zone *blkz,
-				   struct blk_zone *zone)
+static inline void zbd_parse_zone(struct zbd_zone *zone, struct blk_zone *blkz)
 {
 	zone->start = blkz->start << SECTOR_SHIFT;
 	zone->len = blkz->len << SECTOR_SHIFT;
 	zone->wp = blkz->wp << SECTOR_SHIFT;
+
 	zone->type = blkz->type;
 	zone->cond = blkz->cond;
-	zone->non_seq = blkz->non_seq;
-	zone->reset = blkz->reset;
+	zone->flags = 0;
+	if (blkz->reset)
+		zone->flags |= ZBD_ZONE_RWP_RECOMMENDED;
+	if (blkz->non_seq)
+		zone->flags |= ZBD_ZONE_NON_SEQ_RESOURCES;
 }
 
-#define ZBD_NR_ZONE 8192
+#define ZBD_REPORT_MAX_NR_ZONE	8192
 
 /**
  * zbd_report_zones - Get zone information
  */
 int zbd_report_zones(int fd, off_t ofst, off_t len,
 		     enum zbd_report_option ro,
-		     struct blk_zone *zones, unsigned int *nr_zones)
+		     struct zbd_zone *zones, unsigned int *nr_zones)
 {
 	struct zbd_info *zbdi = zbd_get_fd(fd);
 	unsigned long long zone_size_mask, end;
 	struct blk_zone_report *rep;
 	size_t rep_size;
+	unsigned int rep_nr_zones;
 	unsigned int n = 0, i = 0;
 	struct blk_zone *blkz;
+	struct zbd_zone z;
 	int ret;
 
 	if (!zbdi) {
@@ -490,8 +495,11 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
         }
 
         /* Get all zones information */
+	rep_nr_zones = ZBD_REPORT_MAX_NR_ZONE;
+	if (nr_zones && *nr_zones && *nr_zones < rep_nr_zones)
+		rep_nr_zones = *nr_zones;
 	rep_size = sizeof(struct blk_zone_report) +
-		sizeof(struct blk_zone) * (ZBD_NR_ZONE);
+		sizeof(struct blk_zone) * rep_nr_zones;
 	rep = (struct blk_zone_report *)malloc(rep_size);
 	if (!rep) {
 		zbd_error("%d: No memory for array of zones\n\n", fd);
@@ -504,7 +512,7 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 
 		memset(rep, 0, rep_size);
 		rep->sector = ofst;
-		rep->nr_zones = ZBD_NR_ZONE;
+		rep->nr_zones = rep_nr_zones;
 
 		ret = ioctl(fd, BLKREPORTZONE, rep);
 		if (ret != 0) {
@@ -526,9 +534,10 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 			    ((unsigned long long)ofst >= end))
                                 break;
 
-			if (zbd_should_report_zone(&blkz[i], ro)) {
+			zbd_parse_zone(&z, &blkz[i]);
+			if (zbd_should_report_zone(&z, ro)) {
 				if (zones)
-					zbd_report_zone(&blkz[i], &zones[n]);
+					memcpy(&zones[n], &z, sizeof(z));
 				n++;
 			}
 
@@ -550,10 +559,10 @@ out:
  */
 int zbd_list_zones(int fd, off_t ofst, off_t len,
 		   enum zbd_report_option ro,
-		   struct blk_zone **pzones, unsigned int *pnr_zones)
+		   struct zbd_zone **pzones, unsigned int *pnr_zones)
 {
 	struct zbd_info *zbdi = zbd_get_fd(fd);
-	struct blk_zone *zones = NULL;
+	struct zbd_zone *zones = NULL;
 	unsigned int nr_zones = 0;
 	int ret;
 
@@ -571,7 +580,7 @@ int zbd_list_zones(int fd, off_t ofst, off_t len,
                 goto out;
 
 	/* Allocate zone array */
-	zones = (struct blk_zone *) calloc(nr_zones, sizeof(struct blk_zone));
+	zones = (struct zbd_zone *) calloc(nr_zones, sizeof(struct zbd_zone));
 	if (!zones)
 		return -ENOMEM;
 

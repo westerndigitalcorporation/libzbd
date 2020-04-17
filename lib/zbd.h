@@ -10,8 +10,8 @@
 
 #define _GNU_SOURCE
 
-#include "libzbd/zbd.h"
 #include "config.h"
+#include "libzbd/zbd.h"
 
 #include <stdio.h>
 #include <stdlib.h>

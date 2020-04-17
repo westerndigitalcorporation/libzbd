@@ -18,7 +18,7 @@
  */
 struct gzv_zone {
 	unsigned int		zno;
-	struct blk_zone		*blkz;
+	struct zbd_zone		*zbdz;
 	GtkWidget		*da;
 };
 
@@ -63,7 +63,7 @@ struct gzv {
 	struct zbd_info		info;
 	unsigned int		nr_zones;
 	unsigned int		nr_conv_zones;
-	struct blk_zone		*zones;
+	struct zbd_zone		*zones;
 
 	/*
 	 * Drawn zones.

@@ -92,7 +92,7 @@ static void gzv_set_signal_handlers(void)
 /*
  * Fix offset/length values to the specified block size.
  */
-static void gzv_fix_zone_values(struct blk_zone *blkz, int nrz)
+static void gzv_fix_zone_values(struct zbd_zone *zbdz, int nrz)
 {
 	int i;
 
@@ -100,11 +100,11 @@ static void gzv_fix_zone_values(struct blk_zone *blkz, int nrz)
 		return;
 
 	for (i = 0; i < nrz; i++) {
-		blkz->start /= gzv.block_size;
-		blkz->len /= gzv.block_size;
-		if (!zbd_zone_conventional(blkz))
-			blkz->wp /= gzv.block_size;
-		blkz++;
+		zbdz->start /= gzv.block_size;
+		zbdz->len /= gzv.block_size;
+		if (!zbd_zone_cnv(zbdz))
+			zbdz->wp /= gzv.block_size;
+		zbdz++;
 	}
 }
 
@@ -152,7 +152,7 @@ static int gzv_open(void)
 	gzv_fix_zone_values(gzv.zones, gzv.nr_zones);
 
 	for (i = 0; i < gzv.nr_zones; i++) {
-		if (zbd_zone_conventional(&gzv.zones[i]))
+		if (zbd_zone_cnv(&gzv.zones[i]))
 			gzv.nr_conv_zones++;
 	}
 
@@ -178,7 +178,7 @@ static int gzv_open(void)
 
 	for (i = 0; i < gzv.nr_grid_zones && i < gzv.nr_zones; i++) {
 		gzv.grid_zones[i].zno = i;
-		gzv.grid_zones[i].blkz = &gzv.zones[i];
+		gzv.grid_zones[i].zbdz = &gzv.zones[i];
 	}
 
 out:
