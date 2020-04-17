@@ -178,6 +178,11 @@ static int dz_report_zones(dz_dev_t *dzd)
 		if (ret != 0)
 			return ret;
 
+		if (!dzd->nr_zones) {
+			/* That should not happen */
+			return -EIO;
+		}
+
 		/* Allocate zone array */
 		dzd->max_nr_zones = dzd->nr_zones;
 		dzd->zones = (dz_dev_zone_t *)
