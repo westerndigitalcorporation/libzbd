@@ -230,7 +230,7 @@ static struct zbd_info *zbd_do_get_info(int fd, char *devname)
 			  errno, strerror(errno));
 		goto err;
 	}
-	zbdi->nr_sectors = size64 >> 9;
+	zbdi->nr_sectors = size64 >> SECTOR_SHIFT;
 
 	zbdi->nr_lblocks = size64 / zbdi->lblock_size;
 	if (!zbdi->nr_lblocks) {
@@ -256,7 +256,7 @@ static struct zbd_info *zbd_do_get_info(int fd, char *devname)
 		goto err;
 	}
 	zbdi->zone_sectors = zone_sectors;
-	zbdi->zone_size = (size_t)zone_sectors << 9;
+	zbdi->zone_size = (unsigned long long)zone_sectors << SECTOR_SHIFT;
 
 	/* Get number of zones */
 	ret = ioctl(fd, BLKGETNRZONES, &nr_zones);
@@ -476,13 +476,14 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 
 	zone_size_mask = zbdi->zone_size - 1;
 	if (len == 0)
-		len = zbdi->nr_sectors << 9;
+		len = zbdi->nr_sectors << SECTOR_SHIFT;
 
-	end = ((ofst + len + zone_size_mask) & (~zone_size_mask)) >> 9;
+	end = ((ofst + len + zone_size_mask) & (~zone_size_mask))
+		>> SECTOR_SHIFT;
 	if (end > zbdi->nr_sectors)
 		end = zbdi->nr_sectors;
 
-	ofst = (ofst & (~zone_size_mask)) >> 9;
+	ofst = (ofst & (~zone_size_mask)) >> SECTOR_SHIFT;
 	if ((unsigned long long)ofst >= zbdi->nr_sectors) {
                 *nr_zones = 0;
                 return 0;
@@ -606,13 +607,14 @@ int zbd_zones_operation(int fd, enum zbd_zone_op op, off_t ofst, off_t len)
 
 	zone_size_mask = zbdi->zone_size - 1;
 	if (len == 0)
-		len = zbdi->nr_sectors << 9;
+		len = zbdi->nr_sectors << SECTOR_SHIFT;
 
-	end = ((ofst + len + zone_size_mask) & (~zone_size_mask)) >> 9;
+	end = ((ofst + len + zone_size_mask) & (~zone_size_mask))
+		>> SECTOR_SHIFT;
 	if (end > zbdi->nr_sectors)
 		end = zbdi->nr_sectors;
 
-	ofst = (ofst & (~zone_size_mask)) >> 9;
+	ofst = (ofst & (~zone_size_mask)) >> SECTOR_SHIFT;
 	if ((unsigned long long)ofst >= zbdi->nr_sectors ||
 	    end == (unsigned long long)ofst) {
 		printf("zone op %llu/%llu + %llu\n",
