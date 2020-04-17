@@ -146,8 +146,13 @@ static int gzv_open(void)
 	/* Get list of all zones */
 	ret = zbd_list_zones(gzv.dev_fd, 0, 0, ZBD_RO_ALL,
 			     &gzv.zones, &gzv.nr_zones);
-	if (ret != 0 || !gzv.nr_zones)
+	if (ret != 0)
 		goto out;
+	if (!gzv.nr_zones) {
+		fprintf(stderr, "No zones reported\n");
+		ret = 1;
+		goto out;
+	}
 
 	gzv_fix_zone_values(gzv.zones, gzv.nr_zones);
 
