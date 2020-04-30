@@ -1374,7 +1374,7 @@ static void dz_if_zone_op(dz_dev_t *dzd, enum zbd_zone_op op,
 						GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 						GTK_MESSAGE_ERROR,
 						GTK_BUTTONS_OK,
-						str);
+						"%s", str);
 		gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
 							 "Error %d (%s)",
 							 ret, strerror(ret));
