@@ -62,6 +62,7 @@ static enum zbd_dev_model zbd_get_dev_model(char *devname)
 {
         char str[128];
         FILE *file;
+	int ret;
 
         /* Check that this is a zoned block device */
         snprintf(str, sizeof(str),
@@ -86,10 +87,13 @@ static enum zbd_dev_model zbd_get_dev_model(char *devname)
 	}
 
         memset(str, 0, sizeof(str));
-        fscanf(file, "%s", str);
+        ret = fscanf(file, "%s", str);
         fclose(file);
 
-        if (strcmp(str, "host-aware") == 0)
+	if (ret != 1)
+		return -1;
+
+	if (strcmp(str, "host-aware") == 0)
 		return ZBD_DM_HOST_AWARE;
 	if (strcmp(str, "host-managed") == 0)
 		return ZBD_DM_HOST_MANAGED;
