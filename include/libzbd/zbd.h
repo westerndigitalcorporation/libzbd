@@ -184,7 +184,7 @@ struct zbd_info {
 	/**
 	 * Size in bytes of a zone.
 	 */
-	size_t			zone_size;
+	unsigned long long	zone_size;
 
 	/**
 	 * Size in 512B sectors of a zone.
