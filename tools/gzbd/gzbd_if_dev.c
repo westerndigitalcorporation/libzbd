@@ -116,18 +116,18 @@ static struct dz_if_zinfo_filter {
 	int ro;
 	char *str;
 } zfilter[] = {
-        { ZBD_RO_ALL,			"All zones"                      },
-        { ZBD_RO_NOT_WP,		"Conventional zones"             },
-        { ZBD_RO_EMPTY,			"Empty zones"                    },
-        { ZBD_RO_FULL,			"Full zones"                     },
-        { ZBD_RO_IMP_OPEN,		"Implicitly open zones"          },
-        { ZBD_RO_EXP_OPEN,		"Explicitly open zones"          },
-        { ZBD_RO_CLOSED,		"Closed zones"                   },
-        { ZBD_RO_RWP_RECOMMENDED,	"Zones needing reset"            },
-        { ZBD_RO_NON_SEQ,		"Zones not sequentially written" },
-        { ZBD_RO_RDONLY,		"Read-only zones"                },
-        { ZBD_RO_OFFLINE,		"Offline zones"			 },
-        { 0, NULL }
+	{ ZBD_RO_ALL,			"All zones"			 },
+	{ ZBD_RO_NOT_WP,		"Conventional zones"		 },
+	{ ZBD_RO_EMPTY,			"Empty zones"			 },
+	{ ZBD_RO_FULL,			"Full zones"			 },
+	{ ZBD_RO_IMP_OPEN,		"Implicitly open zones"		 },
+	{ ZBD_RO_EXP_OPEN,		"Explicitly open zones"		 },
+	{ ZBD_RO_CLOSED,		"Closed zones"			 },
+	{ ZBD_RO_RWP_RECOMMENDED,	"Zones needing reset"		 },
+	{ ZBD_RO_NON_SEQ,		"Zones not sequentially written" },
+	{ ZBD_RO_RDONLY,		"Read-only zones"		 },
+	{ ZBD_RO_OFFLINE,		"Offline zones"			 },
+	{ 0, NULL }
 };
 
 dz_dev_t *dz_if_dev_open(char *path)
@@ -978,7 +978,7 @@ static void dz_if_zlist_clear_selection(dz_dev_t *dzd)
 	if (dzd->zlist_selection < 0)
 		return;
 
-        sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(dzd->zlist_treeview));
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(dzd->zlist_treeview));
 	gtk_tree_selection_unselect_all(sel);
 	dz_if_set_selection(dzd, -1);
 }

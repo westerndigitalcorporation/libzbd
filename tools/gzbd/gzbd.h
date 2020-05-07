@@ -16,7 +16,7 @@
 /**
  * Default refresh interval (milliseconds).
  */
-#define DZ_INTERVAL     1000
+#define DZ_INTERVAL	1000
 
 /**
  * Zone information list columns.

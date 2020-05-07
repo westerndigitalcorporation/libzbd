@@ -26,7 +26,7 @@ extern "C" {
  * @brief Zone types
  *
  * @ZBD_ZONE_TYPE_CNV: The zone has no write pointer and can be writen
- *                     randomly. Zone reset has no effect on the zone.
+ *		       randomly. Zone reset has no effect on the zone.
  * @ZBD_ZONE_TYPE_SWR: The zone must be written sequentially
  * @ZBD_ZONE_TYPE_SWP: The zone can be written randomly
  */
@@ -43,10 +43,10 @@ enum zbd_zone_type {
  * @ZBD_ZONE_COND_EMPTY: The zone is empty.
  * @ZBD_ZONE_COND_IMP_OPEN: The zone is open, but not explicitly opened.
  * @ZBD_ZONE_COND_EXP_OPEN: The zones was explicitly opened by an
- *                          OPEN ZONE command.
+ *			    OPEN ZONE command.
  * @ZBD_ZONE_COND_CLOSED: The zone was [explicitly] closed after writing.
  * @ZBD_ZONE_COND_FULL: The zone is marked as full, possibly by a zone
- *                      FINISH ZONE command.
+ *			FINISH ZONE command.
  * @ZBD_ZONE_COND_READONLY: The zone is read-only.
  * @ZBD_ZONE_COND_OFFLINE: The zone is offline (dead).
  */
@@ -116,9 +116,9 @@ extern void zbd_set_log_level(enum zbd_log_level);
  * @brief Block device zone models.
  */
 enum zbd_dev_model {
-        ZBD_DM_HOST_MANAGED = 1,
+	ZBD_DM_HOST_MANAGED = 1,
 	ZBD_DM_HOST_AWARE,
-        ZBD_DM_NOT_ZONED,
+	ZBD_DM_NOT_ZONED,
 };
 
 /**
@@ -176,10 +176,10 @@ struct zbd_info {
 	unsigned int		max_nr_open_zones;
 
 	/**
-         * Maximum number of active zones. A value of 0 means that the device
+	 * Maximum number of active zones. A value of 0 means that the device
 	 * has no limit. A value of -1 means that the value is unknown.
-         */
-        unsigned int            max_nr_active_zones;
+	 */
+	unsigned int		max_nr_active_zones;
 
 	/**
 	 * Size in bytes of a zone.
@@ -346,7 +346,7 @@ static inline int zbd_report_nr_zones(int fd, off_t ofst, off_t len,
 					enum zbd_report_option ro,
 					unsigned int *nr_zones)
 {
-        return zbd_report_zones(fd, ofst, len, ro, NULL, nr_zones);
+	return zbd_report_zones(fd, ofst, len, ro, NULL, nr_zones);
 }
 
 /**
@@ -477,7 +477,7 @@ static inline int zbd_finish_zones(int fd, off_t ofst, off_t len)
 #define zbd_zone_cnv(z)		((z)->type == ZBD_ZONE_TYPE_CNV)
 #define zbd_zone_swr(z)		((z)->type == ZBD_ZONE_TYPE_SWR)
 #define zbd_zone_swp(z)		((z)->type == ZBD_ZONE_TYPE_SWP)
-#define zbd_zone_seq(z) 	(zbd_zone_swr(z) || zbd_zone_swp(z))
+#define zbd_zone_seq(z)		(zbd_zone_swr(z) || zbd_zone_swp(z))
 
 #define zbd_zone_cond(z)	((z)->cond)
 #define zbd_zone_not_wp(z)	((z)->cond == ZBD_ZONE_COND_NOT_WP)

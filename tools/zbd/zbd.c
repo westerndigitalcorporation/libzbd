@@ -29,7 +29,7 @@ enum zbd_cmd {
 struct zbd_opts {
 	/* Common options */
 	char			*dev_path;
-	struct zbd_info 	dev_info;
+	struct zbd_info		dev_info;
 	enum zbd_cmd		cmd;
 	long long		ofst;
 	long long		len;
@@ -242,12 +242,12 @@ static int zbd_usage(char *cmd)
 	       "  -v		   : Verbose mode (for debug)\n"
 	       "  -i		   : Display device information\n"
 	       "  -ofst <ofst (B)> : Start offset of the first zone of the\n"
-	       "                     target range (default: 0)\n"
+	       "		     target range (default: 0)\n"
 	       "  -len <len (B)>   : Size of the zone range to operate on\n"
-	       "                     (default: device capacity)\n"
-	       "  -u <unit (B)>    : Size unit for the ofst and len options\n"
-	       "                     and for displaying zone report results.\n"
-	       "                     (default: 1)\n"
+	       "		     (default: device capacity)\n"
+	       "  -u <unit (B)>	   : Size unit for the ofst and len options\n"
+	       "		     and for displaying zone report results.\n"
+	       "		     (default: 1)\n"
 	       "Report command options:\n"
 	       "  -csv		: Use csv output format\n"
 	       "  -n		: Only output the number of zones in the report\n"

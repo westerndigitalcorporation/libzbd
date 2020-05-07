@@ -60,16 +60,16 @@ static int zbd_dev_path(const char *filename, char **path, char **devname)
  */
 static enum zbd_dev_model zbd_get_dev_model(char *devname)
 {
-        char str[128];
-        FILE *file;
+	char str[128];
+	FILE *file;
 	int ret;
 
-        /* Check that this is a zoned block device */
-        snprintf(str, sizeof(str),
-                 "/sys/block/%s/queue/zoned",
-                 devname);
-        file = fopen(str, "r");
-        if (!file) {
+	/* Check that this is a zoned block device */
+	snprintf(str, sizeof(str),
+		 "/sys/block/%s/queue/zoned",
+		 devname);
+	file = fopen(str, "r");
+	if (!file) {
 		/*
 		 * Assume old kernel or kernel without ZBD support enabled: try
 		 * a sysfs file that must exist for all block devices. If it is
@@ -86,9 +86,9 @@ static enum zbd_dev_model zbd_get_dev_model(char *devname)
 		return -1;
 	}
 
-        memset(str, 0, sizeof(str));
-        ret = fscanf(file, "%s", str);
-        fclose(file);
+	memset(str, 0, sizeof(str));
+	ret = fscanf(file, "%s", str);
+	fclose(file);
 
 	if (ret != 1)
 		return -1;
@@ -109,24 +109,24 @@ static enum zbd_dev_model zbd_get_dev_model(char *devname)
  */
 static int zbd_get_str(FILE *file, char *str)
 {
-        int len = 0;
+	int len = 0;
 
-        if (fgets(str, 128, file)) {
-                len = strlen(str) - 1;
-                while (len > 0) {
-                        if (str[len] == ' ' ||
-                            str[len] == '\t' ||
-                            str[len] == '\r' ||
-                            str[len] == '\n') {
-                                str[len] = '\0';
-                                len--;
-                        } else {
-                                break;
-                        }
-                }
-        }
+	if (fgets(str, 128, file)) {
+		len = strlen(str) - 1;
+		while (len > 0) {
+			if (str[len] == ' ' ||
+			    str[len] == '\t' ||
+			    str[len] == '\r' ||
+			    str[len] == '\n') {
+				str[len] = '\0';
+				len--;
+			} else {
+				break;
+			}
+		}
+	}
 
-        return len;
+	return len;
 }
 
 /*
@@ -134,56 +134,56 @@ static int zbd_get_str(FILE *file, char *str)
  */
 static int zbd_get_vendor_id(char *devname, struct zbd_info *zbdi)
 {
-        char str[128];
-        FILE *file;
-        int n = 0, len;
+	char str[128];
+	FILE *file;
+	int n = 0, len;
 
-        snprintf(str, sizeof(str),
-                 "/sys/block/%s/device/vendor",
-                 devname);
-        file = fopen(str, "r");
-        if (file) {
-                len = zbd_get_str(file, str);
-                if (len)
-                        n = snprintf(zbdi->vendor_id,
-                                     ZBD_VENDOR_ID_LENGTH,
-                                     "%s ", str);
-                fclose(file);
-        }
+	snprintf(str, sizeof(str),
+		 "/sys/block/%s/device/vendor",
+		 devname);
+	file = fopen(str, "r");
+	if (file) {
+		len = zbd_get_str(file, str);
+		if (len)
+			n = snprintf(zbdi->vendor_id,
+				     ZBD_VENDOR_ID_LENGTH,
+				     "%s ", str);
+		fclose(file);
+	}
 
-        snprintf(str, sizeof(str),
-                 "/sys/block/%s/device/model",
-                 devname);
-        file = fopen(str, "r");
-        if (file) {
-                len = zbd_get_str(file, str);
-                if (len)
-                        n += snprintf(&zbdi->vendor_id[n],
-                                      ZBD_VENDOR_ID_LENGTH - n,
-                                      "%s ", str);
-                fclose(file);
-        }
+	snprintf(str, sizeof(str),
+		 "/sys/block/%s/device/model",
+		 devname);
+	file = fopen(str, "r");
+	if (file) {
+		len = zbd_get_str(file, str);
+		if (len)
+			n += snprintf(&zbdi->vendor_id[n],
+				      ZBD_VENDOR_ID_LENGTH - n,
+				      "%s ", str);
+		fclose(file);
+	}
 
-        snprintf(str, sizeof(str),
-                 "/sys/block/%s/device/rev",
-                 devname);
-        file = fopen(str, "r");
-        if (file) {
-                len = zbd_get_str(file, str);
-                if (len)
-                        n += snprintf(&zbdi->vendor_id[n],
-                                      ZBD_VENDOR_ID_LENGTH - n,
-                                      "%s", str);
-                fclose(file);
-        }
+	snprintf(str, sizeof(str),
+		 "/sys/block/%s/device/rev",
+		 devname);
+	file = fopen(str, "r");
+	if (file) {
+		len = zbd_get_str(file, str);
+		if (len)
+			n += snprintf(&zbdi->vendor_id[n],
+				      ZBD_VENDOR_ID_LENGTH - n,
+				      "%s", str);
+		fclose(file);
+	}
 
-        return n > 0;
+	return n > 0;
 }
 
 static struct zbd_info *zbd_do_get_info(int fd, char *devname)
 {
 	unsigned int zone_sectors, nr_zones;
-        unsigned long long size64;
+	unsigned long long size64;
 	struct zbd_info *zbdi;
 	int ret, size32;
 
@@ -305,16 +305,16 @@ int zbd_device_is_zoned(const char *filename)
 		return ret;
 
 	/* Check device */
-        if (stat(path, &st) != 0) {
-                zbd_error("Stat device file failed %d (%s)\n",
-                          errno, strerror(errno));
+	if (stat(path, &st) != 0) {
+		zbd_error("Stat device file failed %d (%s)\n",
+			  errno, strerror(errno));
 		free(path);
-                return 0;
-        }
+		return 0;
+	}
 
-        if (!S_ISBLK(st.st_mode)) {
+	if (!S_ISBLK(st.st_mode)) {
 		free(path);
-                return 0;
+		return 0;
 	}
 
 	model = zbd_get_dev_model(devname);
@@ -347,25 +347,25 @@ int zbd_open(const char *filename, int flags, struct zbd_info *info)
 	/* Open block device */
 	fd = open(path, flags | O_LARGEFILE); //direct
 	if (fd < 0) {
-                zbd_error("open %s failed %d (%s)\n",
-                          filename, errno, strerror(errno));
-                goto err;
-        }
+		zbd_error("open %s failed %d (%s)\n",
+			  filename, errno, strerror(errno));
+		goto err;
+	}
 
-        /* Get device information */
-        zbdi = zbd_do_get_info(fd, devname);
-        if (!zbdi)
-                goto err;
+	/* Get device information */
+	zbdi = zbd_do_get_info(fd, devname);
+	if (!zbdi)
+		goto err;
 
 	zbd_fdi[fd] = zbdi;
-        if (info)
+	if (info)
 		memcpy(info, zbdi, sizeof(struct zbd_info));
 
-        return fd;
+	return fd;
 
 err:
 	if (fd >= 0)
-                close(fd);
+		close(fd);
 	free(path);
 
 	return fd;
@@ -494,11 +494,11 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 
 	ofst = (ofst & (~zone_size_mask)) >> SECTOR_SHIFT;
 	if ((unsigned long long)ofst >= zbdi->nr_sectors) {
-                *nr_zones = 0;
-                return 0;
-        }
+		*nr_zones = 0;
+		return 0;
+	}
 
-        /* Get all zones information */
+	/* Get all zones information */
 	rep_nr_zones = ZBD_REPORT_MAX_NR_ZONE;
 	if (nr_zones && *nr_zones && *nr_zones < rep_nr_zones)
 		rep_nr_zones = *nr_zones;
@@ -512,7 +512,7 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 
 	blkz = (struct blk_zone *)(rep + 1);
 	while (((!*nr_zones) || (n < *nr_zones)) &&
-               ((unsigned long long)ofst < end)) {
+	       ((unsigned long long)ofst < end)) {
 
 		memset(rep, 0, rep_size);
 		rep->sector = ofst;
@@ -521,22 +521,22 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 		ret = ioctl(fd, BLKREPORTZONE, rep);
 		if (ret != 0) {
 			ret = -errno;
-                     	zbd_error("%d: ioctl BLKREPORTZONE at %llu failed %d (%s)\n",
-                                  fd,
-                                  (unsigned long long)ofst,
-                                  errno,
-                                  strerror(errno));
-                        goto out;
+			zbd_error("%d: ioctl BLKREPORTZONE at %llu failed %d (%s)\n",
+				  fd,
+				  (unsigned long long)ofst,
+				  errno,
+				  strerror(errno));
+			goto out;
 		}
 
 		if (!rep->nr_zones)
-                        break;
+			break;
 
 		for (i = 0; i < rep->nr_zones; i++) {
 
-                        if ((*nr_zones && (n >= *nr_zones)) ||
+			if ((*nr_zones && (n >= *nr_zones)) ||
 			    ((unsigned long long)ofst >= end))
-                                break;
+				break;
 
 			zbd_parse_zone(&z, &blkz[i]);
 			if (zbd_should_report_zone(&z, ro)) {
@@ -546,11 +546,11 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 			}
 
 			ofst = blkz[i].start + blkz[i].len;
-                }
-        }
+		}
+	}
 
-        /* Return number of zones */
-        *nr_zones = n;
+	/* Return number of zones */
+	*nr_zones = n;
 
 out:
 	free(rep);
@@ -576,12 +576,12 @@ int zbd_list_zones(int fd, off_t ofst, off_t len,
 	}
 
 	/* Get number of zones */
-        ret = zbd_report_nr_zones(fd, ofst, len, ro, &nr_zones);
-        if (ret < 0)
-                return ret;
+	ret = zbd_report_nr_zones(fd, ofst, len, ro, &nr_zones);
+	if (ret < 0)
+		return ret;
 
-        if (!nr_zones)
-                goto out;
+	if (!nr_zones)
+		goto out;
 
 	/* Allocate zone array */
 	zones = (struct zbd_zone *) calloc(nr_zones, sizeof(struct zbd_zone));
@@ -599,7 +599,7 @@ int zbd_list_zones(int fd, off_t ofst, off_t len,
 
 out:
 	*pzones = zones;
-        *pnr_zones = nr_zones;
+	*pnr_zones = nr_zones;
 	return 0;
 }
 
@@ -634,17 +634,17 @@ int zbd_zones_operation(int fd, enum zbd_zone_op op, off_t ofst, off_t len)
 	       (unsigned long long)ofst,
 	       (unsigned long long)zbdi->nr_sectors,
 	       (unsigned long long)(end - ofst));
-                return 0;
+		return 0;
 	}
 
 	range.sector = ofst;
 	range.nr_sectors = end - ofst;
 
 	/* Execute the operation */
-        switch (op) {
-        case ZBD_OP_RESET:
-          	ret = ioctl(fd, BLKRESETZONE, &range);
-          	if (ret != 0){
+	switch (op) {
+	case ZBD_OP_RESET:
+		ret = ioctl(fd, BLKRESETZONE, &range);
+		if (ret != 0){
 			zbd_error("zone operation 0x%x failed %d (%s)\n",
 				  op, errno, strerror(errno));
 			return -1;
@@ -681,7 +681,7 @@ int zbd_zones_operation(int fd, enum zbd_zone_op op, off_t ofst, off_t len)
 #endif
 		break;
 
-        case ZBD_OP_FINISH:
+	case ZBD_OP_FINISH:
 #ifdef BLKFINISHZONE
 		ret = ioctl(fd, BLKFINISHZONE, &range);
 		if (ret != 0){

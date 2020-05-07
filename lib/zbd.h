@@ -3,7 +3,7 @@
  * SPDX-FileCopyrightText: 2020 Western Digital Corporation or its affiliates.
  *
  * Authors: Damien Le Moal (damien.lemoal@wdc.com)
- *          Ting Yao <tingyao@hust.edu.cn>
+ *	    Ting Yao <tingyao@hust.edu.cn>
  */
 #ifndef __LIBZBD_INTERNAL_H__
 #define __LIBZBD_INTERNAL_H__
@@ -28,8 +28,8 @@ extern __thread int zbd_log_level;
 
 #define zbd_print(stream,format,args...)		\
 	do {						\
-		fprintf((stream), format, ## args);     \
-		fflush(stream);                         \
+		fprintf((stream), format, ## args);	\
+		fflush(stream);				\
 	} while (0)
 
 #define zbd_print_level(l,stream,format,args...)		\
@@ -49,9 +49,9 @@ extern __thread int zbd_log_level;
 	do {						\
 		zbd_print_level(ZBD_LOG_ERROR,		\
 				stderr,			\
-				"[PANIC] " format,      \
-				##args);                \
-		assert(0);                              \
+				"[PANIC] " format,	\
+				##args);		\
+		assert(0);				\
 	} while (0)
 
 #define zbd_assert(cond)					\
