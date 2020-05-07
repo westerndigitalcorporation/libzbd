@@ -76,7 +76,7 @@ static struct zbd_str zbd_ztype_str[] = {
 	{ BLK_ZONE_TYPE_CONVENTIONAL,	"conventional",		"cnv"	},
 	{ BLK_ZONE_TYPE_SEQWRITE_REQ,	"seq-write-required",	"swr"	},
 	{ BLK_ZONE_TYPE_SEQWRITE_PREF,	"seq-write-preferred",	"swp"	},
-	{ UINT_MAX,			"unkown",		"???"	}
+	{ UINT_MAX,			"unknown",		"???"	}
 };
 
 /**
@@ -96,7 +96,7 @@ static struct zbd_str zbd_zcond_str[] = {
 	{ BLK_ZONE_COND_CLOSED,		"closed",		"cl"	},
 	{ BLK_ZONE_COND_READONLY,	"read-only",		"ro"	},
 	{ BLK_ZONE_COND_OFFLINE,	"offline",		"ol"	},
-	{ UINT_MAX,			"unkown",		"??"	}
+	{ UINT_MAX,			"unknown",		"??"	}
 };
 /**
  * zbd_zone_cond_str - Returns a string describing a zone condition
