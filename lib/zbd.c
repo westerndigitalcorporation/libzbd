@@ -7,6 +7,7 @@
  */
 #include "zbd.h"
 
+#include <errno.h>
 #include <string.h>
 #include <limits.h>
 #include <assert.h>
