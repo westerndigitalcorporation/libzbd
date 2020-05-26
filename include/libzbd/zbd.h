@@ -82,11 +82,11 @@ struct zbd_zone {
 	unsigned long long	len;		/* Zone length */
 	unsigned long long	capacity;	/* Zone capacity */
 	unsigned long long	wp;		/* Zone write pointer */
-	unsigned int		flags;		/* Zone flags */
-	enum zbd_zone_type	type;		/* Zone type */
-	enum zbd_zone_cond	cond;		/* Zone condition */
-	uint8_t			reserved[8];
-};
+	unsigned int		flags;		/* Zone state flags */
+	unsigned int		type;		/* Zone type */
+	unsigned int		cond;		/* Zone condition */
+	uint8_t			reserved[20];	/* Padding to 64B */
+} __attribute__((packed));
 
 /**
  * @brief Library log levels
@@ -135,11 +135,6 @@ enum zbd_dev_model {
 struct zbd_info {
 
 	/**
-	 * Device zone model.
-	 */
-	enum zbd_dev_model	model;
-
-	/**
 	 * Device vendor, model and firmware revision string.
 	 */
 	char			vendor_id[ZBD_VENDOR_ID_LENGTH];
@@ -150,24 +145,38 @@ struct zbd_info {
 	unsigned long long	nr_sectors;
 
 	/**
-	 * Size in bytes of the device logical blocks.
-	 */
-	size_t			lblock_size;
-
-	/**
 	 * Total number of logical blocks of the device.
 	 */
 	unsigned long long	nr_lblocks;
 
+	/**
+	 * Total number of physical blocks of the device.
+	 */
+	unsigned long long	nr_pblocks;
+
+	/**
+	 * Size in bytes of a zone.
+	 */
+	unsigned long long	zone_size;
+
+	/**
+	 * Size in 512B sectors of a zone.
+	 */
+	size_t			zone_sectors;
+
+	/**
+	 * Size in bytes of the device logical blocks.
+	 */
+	size_t			lblock_size;
 	/**
 	 * Size in bytes of the device physical blocks.
 	 */
 	size_t			pblock_size;
 
 	/**
-	 * Total number of physical blocks of the device.
+	 * Number of zones.
 	 */
-	unsigned long long	nr_pblocks;
+	unsigned int		nr_zones;
 
 	/**
 	 * Maximum number of explicitely open zones. A value of 0 means that
@@ -183,25 +192,15 @@ struct zbd_info {
 	unsigned int		max_nr_active_zones;
 
 	/**
-	 * Size in bytes of a zone.
+	 * Device zone model.
 	 */
-	unsigned long long	zone_size;
+	unsigned int		model;
 
 	/**
-	 * Size in 512B sectors of a zone.
+	 * Padding to 128B.
 	 */
-	size_t			zone_sectors;
-
-	/**
-	 * Number of zones.
-	 */
-	unsigned int		nr_zones;
-
-	/**
-	 * Reserved.
-	 */
-	unsigned int		reserved[8];
-};
+	uint8_t			reserved[24];
+} __attribute__((packed));
 
 /**
  * @brief Test if a device is a zoned block device
