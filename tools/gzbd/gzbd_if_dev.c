@@ -675,7 +675,7 @@ static void dz_if_zlist_print_zone_cond(GtkTreeViewColumn *col,
 	} else if (zbd_zone_offline(z)) {
 		strncpy(str, "Offline", sizeof(str));
 	} else {
-		snprintf(str, sizeof(str), "??? (0x%01x)", z->cond);
+		snprintf(str, sizeof(str), "??? (0x%01x)", zbd_zone_cond(z));
 	}
 	g_object_set(renderer, "text", str, NULL);
 }
@@ -1276,7 +1276,7 @@ static gboolean dz_if_zones_draw_cb(GtkWidget *widget, cairo_t *cr,
 	unsigned long long cap = 0, sz;
 	struct zbd_zone *z;
 	GdkRGBA color;
-	int w, h, x = 0, zw, ww;
+	long long w, h, x = 0, zw, ww;
 	char str[64];
 	unsigned int i;
 
