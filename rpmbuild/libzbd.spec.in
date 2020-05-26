@@ -1,0 +1,51 @@
+Name:           libzbd
+Release:        1%{?dist}
+Summary:        A library to control zoned block devices
+Group:		System Environment/Libraries
+License:        LGPL-3.0
+URL:		https://github.com/westerndigitalcorporation/libzbd
+Source:         %{name}-%{version}.tar.gz
+
+BuildRequires:  autoconf
+BuildRequires:  automake
+BuildRequires:  libtool
+BuildRequires:  gcc
+
+%description
+libzbd is a simple library providing functions simplifying the management and
+use of zoned block devices using the kernel provided ioctl interface.
+
+%package devel
+Summary: Development header files for libzbd
+Group: Development/System
+Requires: %{name}%{?_isa} = %{version}-%{release}
+
+%description devel
+This package provides development header files for libzbd.
+
+%prep
+%setup
+
+%build
+sh autogen.sh
+%configure --libdir="%{_libdir}" --includedir="%{_includedir}"
+%make_build
+
+%install
+rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT
+make install PREFIX=%{_prefix} DESTDIR=$RPM_BUILD_ROOT 
+chmod -x $RPM_BUILD_ROOT%{_mandir}/man8/*.8
+
+find $RPM_BUILD_ROOT -name '*.la' -delete
+
+%ldconfig_scriptlets
+
+%files
+%{_libdir}/*
+%{_bindir}/*
+%{_mandir}/man8/*
+
+%files devel
+%{_includedir}/*
+

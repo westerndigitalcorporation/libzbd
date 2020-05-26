@@ -15,6 +15,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/include
 
 pkgconfdir = $(libdir)/pkgconfig
+rpmdir = $(abs_top_builddir)/rpmbuild
 
 pkgconf_DATA = libzbd.pc
 pkginclude_HEADERS =
@@ -23,7 +24,7 @@ bin_PROGRAMS =
 lib_LTLIBRARIES =
 noinst_PROGRAMS =
 
-man8_MANS =
+dist_man8_MANS =
 
 libzbd_ldadd = $(LDADD) libzbd.la
 
@@ -36,4 +37,30 @@ if BUILD_GUI
 include tools/gzbd/Makemodule.am
 include tools/gzbd-viewer/Makemodule.am
 endif
+
+rpm: dist
+	@mkdir -p $(rpmdir)/BUILD
+	@mkdir -p $(rpmdir)/RPMS
+	@mkdir -p $(rpmdir)/SOURCES
+	@mkdir -p $(rpmdir)/SPECS
+	@mkdir -p $(rpmdir)/SRPMS
+	@mv libzbd-$(PACKAGE_VERSION).tar.gz $(rpmdir)/SOURCES
+	@echo "Version:        $(PACKAGE_VERSION)" > $(rpmdir)/SPECS/libzbd.spec
+	@cat $(rpmdir)/libzbd.spec.in >> $(rpmdir)/SPECS/libzbd.spec
+	@rpmbuild -bs -v \
+		--target="$(build_cpu)" \
+		-D "_topdir $(rpmdir)" \
+		--nodebuginfo "$(rpmdir)/SPECS/libzbd.spec"
+	@mv -f $(rpmdir)/SRPMS/*.rpm $(abs_top_builddir)
+	@rpmbuild -bb -v \
+		--target="$(build_cpu)" \
+		-D "_topdir $(rpmdir)" \
+		--nodebuginfo "$(rpmdir)/SPECS/libzbd.spec"
+	@mv -f $(rpmdir)/RPMS/$(build_cpu)/*.rpm $(abs_top_builddir)
+	@rm -rf $(rpmdir)/SRPMS
+	@rm -rf $(rpmdir)/SPECS
+	@rm -rf $(rpmdir)/SOURCES
+	@rm -rf $(rpmdir)/RPMS
+	@rm -rf $(rpmdir)/BUILDROOT
+	@rm -rf $(rpmdir)/BUILD
 

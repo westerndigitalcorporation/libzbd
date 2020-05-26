@@ -88,6 +88,24 @@ command displays the options used to control the installation paths.
 $ ./configure --help
 ```
 
+## Building rpm packages
+
+The following command will build redistributable rpm packages.
+
+```
+$ make rpm
+```
+
+Three rpm packages are built: a binary package providing the library and
+executable tools, a development package providing *libzbd* header files and a
+source rpm package. The source rpm package can be used to build the binary and
+development rpm packages outside of *libzbd* source tree using the following
+command.
+
+```
+$ rpmbuild --rebuild libzbd-<version>.src.rpm
+```
+
 ## Library Overview
 
 
