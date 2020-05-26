@@ -508,7 +508,7 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 	rep = (struct blk_zone_report *)malloc(rep_size);
 	if (!rep) {
 		zbd_error("%d: No memory for array of zones\n\n", fd);
-		return -1;
+		return -ENOMEM;
 	}
 
 	blkz = (struct blk_zone *)(rep + 1);
@@ -523,10 +523,8 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 		if (ret != 0) {
 			ret = -errno;
 			zbd_error("%d: ioctl BLKREPORTZONE at %llu failed %d (%s)\n",
-				  fd,
-				  (unsigned long long)ofst,
-				  errno,
-				  strerror(errno));
+				  fd, (unsigned long long)ofst,
+				  errno, strerror(errno));
 			goto out;
 		}
 
@@ -556,7 +554,7 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 out:
 	free(rep);
 
-	return 0;
+	return ret;
 }
 
 /**
