@@ -73,10 +73,10 @@ const char *zbd_device_model_str(enum zbd_dev_model model, bool s)
 }
 
 static struct zbd_str zbd_ztype_str[] = {
-	{ BLK_ZONE_TYPE_CONVENTIONAL,	"conventional",		"cnv"	},
-	{ BLK_ZONE_TYPE_SEQWRITE_REQ,	"seq-write-required",	"swr"	},
-	{ BLK_ZONE_TYPE_SEQWRITE_PREF,	"seq-write-preferred",	"swp"	},
-	{ UINT_MAX,			"unknown",		"???"	}
+	{ ZBD_ZONE_TYPE_CNV,	"conventional",		"cnv"	},
+	{ ZBD_ZONE_TYPE_SWR,	"seq-write-required",	"swr"	},
+	{ ZBD_ZONE_TYPE_SWP,	"seq-write-preferred",	"swp"	},
+	{ UINT_MAX,		"unknown",		"???"	}
 };
 
 /**
@@ -88,14 +88,14 @@ const char *zbd_zone_type_str(struct zbd_zone *z, bool s)
 }
 
 static struct zbd_str zbd_zcond_str[] = {
-	{ BLK_ZONE_COND_NOT_WP,		"not-write-pointer",	"nw"	},
-	{ BLK_ZONE_COND_EMPTY,		"empty",		"em"	},
-	{ BLK_ZONE_COND_FULL,		"full",			"fu"	},
-	{ BLK_ZONE_COND_IMP_OPEN,	"open-implicit",	"oi"	},
-	{ BLK_ZONE_COND_EXP_OPEN,	"open-explicit",	"oe"	},
-	{ BLK_ZONE_COND_CLOSED,		"closed",		"cl"	},
-	{ BLK_ZONE_COND_READONLY,	"read-only",		"ro"	},
-	{ BLK_ZONE_COND_OFFLINE,	"offline",		"ol"	},
+	{ ZBD_ZONE_COND_NOT_WP,		"not-write-pointer",	"nw"	},
+	{ ZBD_ZONE_COND_EMPTY,		"empty",		"em"	},
+	{ ZBD_ZONE_COND_FULL,		"full",			"fu"	},
+	{ ZBD_ZONE_COND_IMP_OPEN,	"open-implicit",	"oi"	},
+	{ ZBD_ZONE_COND_EXP_OPEN,	"open-explicit",	"oe"	},
+	{ ZBD_ZONE_COND_CLOSED,		"closed",		"cl"	},
+	{ ZBD_ZONE_COND_READONLY,	"read-only",		"ro"	},
+	{ ZBD_ZONE_COND_OFFLINE,	"offline",		"ol"	},
 	{ UINT_MAX,			"unknown",		"??"	}
 };
 /**
