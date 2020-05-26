@@ -161,16 +161,17 @@ struct zbd_info {
 	/**
 	 * Size in 512B sectors of a zone.
 	 */
-	size_t			zone_sectors;
+	unsigned int		zone_sectors;
 
 	/**
 	 * Size in bytes of the device logical blocks.
 	 */
-	size_t			lblock_size;
+	unsigned int		lblock_size;
+
 	/**
 	 * Size in bytes of the device physical blocks.
 	 */
-	size_t			pblock_size;
+	unsigned int		pblock_size;
 
 	/**
 	 * Number of zones.
@@ -198,7 +199,7 @@ struct zbd_info {
 	/**
 	 * Padding to 128B.
 	 */
-	uint8_t			reserved[24];
+	uint8_t			reserved[36];
 } __attribute__((packed));
 
 /**

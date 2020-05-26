@@ -207,9 +207,9 @@ static void zbd_print_dev_info(struct zbd_opts *opts)
 	printf("    Capacity: %.03F GB (%llu 512-bytes sectors)\n",
 	       (double)(opts->dev_info.nr_sectors << 9) / 1000000000,
 	       opts->dev_info.nr_sectors);
-	printf("    Logical blocks: %llu blocks of %zu B\n",
+	printf("    Logical blocks: %llu blocks of %u B\n",
 	       opts->dev_info.nr_lblocks, opts->dev_info.lblock_size);
-	printf("    Physical blocks: %llu blocks of %zu B\n",
+	printf("    Physical blocks: %llu blocks of %u B\n",
 	       opts->dev_info.nr_pblocks, opts->dev_info.pblock_size);
 	printf("    Zones: %u zones of %.1F MB\n",
 	       opts->dev_info.nr_zones,

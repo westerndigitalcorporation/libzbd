@@ -173,7 +173,7 @@ dz_dev_t *dz_if_dev_open(char *path)
 
 	/* Zone list filter frame */
 	snprintf(str, sizeof(str) - 1,
-		 "<b>%.03F GB, %zu B logical blocks, %zu B physical blocks</b>",
+		 "<b>%.03F GB, %u B logical blocks, %u B physical blocks</b>",
 		 (double) (dzd->info.nr_sectors << 9) / 1000000000,
 		 dzd->info.lblock_size, dzd->info.pblock_size);
 	frame = gtk_frame_new(str);
