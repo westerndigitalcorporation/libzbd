@@ -42,6 +42,10 @@ AC_CHECK_HEADER(linux/blkzoned.h, [],
 		[AC_MSG_ERROR([Couldn't find linux/blkzoned.h. Kernel too old ?])],
 		[[#include <linux/blkzoned.h>]])
 
+AC_CHECK_MEMBER([struct blk_zone.capacity],
+		[AC_DEFINE(HAVE_BLK_ZONE_REP_V2, [1], [report zones includes zone capacity])],
+		[], [[#include <linux/blkzoned.h>]])
+
 # Conditionals
 
 # Build GUI tools only if GTK3 is installed and can be detected with pkg-config.

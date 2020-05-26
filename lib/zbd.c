@@ -445,11 +445,15 @@ static bool zbd_should_report_zone(struct zbd_zone *zone,
 /*
  * zbd_parse_zone - Fill a zone descriptor
  */
-static inline void zbd_parse_zone(struct zbd_zone *zone, struct blk_zone *blkz)
+static inline void zbd_parse_zone(struct zbd_zone *zone, struct blk_zone *blkz,
+				  struct blk_zone_report *rep)
 {
 	zone->start = blkz->start << SECTOR_SHIFT;
 	zone->len = blkz->len << SECTOR_SHIFT;
-	zone->capacity = zone->len;
+	if (rep->flags & BLK_ZONE_REP_CAPACITY)
+		zone->capacity = blkz->capacity << SECTOR_SHIFT;
+	else
+		zone->capacity = zone->len;
 	zone->wp = blkz->wp << SECTOR_SHIFT;
 
 	zone->type = blkz->type;
@@ -538,7 +542,7 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 			    ((unsigned long long)ofst >= end))
 				break;
 
-			zbd_parse_zone(&z, &blkz[i]);
+			zbd_parse_zone(&z, &blkz[i], rep);
 			if (zbd_should_report_zone(&z, ro)) {
 				if (zones)
 					memcpy(&zones[n], &z, sizeof(z));
