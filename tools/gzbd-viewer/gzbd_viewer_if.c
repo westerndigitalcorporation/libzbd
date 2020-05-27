@@ -362,12 +362,30 @@ static gboolean gzv_if_draw_legend_cb(GtkWidget *widget, cairo_t *cr,
 	return FALSE;
 }
 
+static void gzv_if_get_da_size(unsigned int *w, unsigned int *h)
+{
+	GdkDisplay *disp = gdk_display_get_default();
+	GdkMonitor *mon = gdk_display_get_primary_monitor(disp);
+	GdkRectangle geom;
+
+	gdk_monitor_get_geometry(mon, &geom);
+
+	*w = (geom.width - 200) / gzv.nr_col;
+	if (*w > 100)
+		*w = 100;
+
+	*h = (geom.height - 200) / gzv.nr_row;
+	if (*h > 60)
+		*h = 60;
+}
+
 void gzv_if_create(void)
 {
 	GtkWidget *top_vbox, *vbox, *frame, *hbox, *scrollbar, *grid, *da;
 	GtkAdjustment *vadj;
 	struct gzv_zone *zone;
 	unsigned int r, c, z = 0;
+	unsigned int da_w, da_h;
 	char str[128];
 
 	/* Get colors */
@@ -428,12 +446,15 @@ void gzv_if_create(void)
 	gtk_box_pack_start(GTK_BOX(hbox), grid, TRUE, TRUE, 0);
 	gtk_widget_show(grid);
 
+	gzv_if_get_da_size(&da_w, &da_h);
 	for (r = 0; r < gzv.nr_row; r++) {
 		for (c = 0; c < gzv.nr_col; c++) {
 			zone = &gzv.grid_zones[z];
 
 			da = gtk_drawing_area_new();
-			gtk_widget_set_size_request(da, 100, 60);
+			gtk_widget_set_size_request(da, da_w, da_h);
+			gtk_widget_set_hexpand(da, TRUE);
+			gtk_widget_set_halign(da, GTK_ALIGN_FILL);
 			gtk_widget_show(da);
 
 			zone->da = da;
