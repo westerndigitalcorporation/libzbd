@@ -131,6 +131,54 @@ static int zbd_get_str(FILE *file, char *str)
 }
 
 /*
+ * Get max number of open/active zones.
+ */
+static void zbd_get_max_resources(char *devname, struct zbd_info *zbdi)
+{
+	unsigned int val;
+	char str[128];
+	FILE *file;
+	int ret;
+
+	/*
+	 * According to max_open_zones/max_active_zones sysfs documentation,
+	 * a sysfs value of 0 means no limit.
+	 *
+	 * While the ZAC/ZBC standard has special treatment for unknown,
+	 * unknown is exported to sysfs as 0.
+	 *
+	 * Default both to unlimited, and set a limit if we managed to read
+	 * a limit from sysfs successfully.
+	 */
+	zbdi->max_nr_open_zones = 0;
+	zbdi->max_nr_active_zones = 0;
+
+	snprintf(str, sizeof(str),
+		 "/sys/block/%s/queue/max_open_zones",
+		 devname);
+	file = fopen(str, "r");
+	if (file) {
+		ret = fscanf(file, "%u", &val);
+		if (ret == 1)
+			zbdi->max_nr_open_zones = val;
+		fclose(file);
+	}
+
+	memset(str, 0, sizeof(str));
+
+	snprintf(str, sizeof(str),
+		 "/sys/block/%s/queue/max_active_zones",
+		 devname);
+	file = fopen(str, "r");
+	if (file) {
+		ret = fscanf(file, "%u", &val);
+		if (ret == 1)
+			zbdi->max_nr_active_zones = val;
+		fclose(file);
+	}
+}
+
+/*
  * Get vendor ID.
  */
 static int zbd_get_vendor_id(char *devname, struct zbd_info *zbdi)
@@ -276,9 +324,8 @@ static struct zbd_info *zbd_do_get_info(int fd, char *devname)
 	}
 	zbdi->nr_zones = nr_zones;
 
-	/* Set limits to unknown for now */
-	zbdi->max_nr_open_zones = -1;
-	zbdi->max_nr_active_zones = -1;
+	/* Get max number of open/active zones */
+	zbd_get_max_resources(devname, zbdi);
 
 	/* Finish setting */
 	if (!zbd_get_vendor_id(devname, zbdi))

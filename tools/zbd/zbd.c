@@ -216,17 +216,13 @@ static void zbd_print_dev_info(struct zbd_opts *opts)
 	       (double)opts->dev_info.zone_size / 1048576.0);
 
 	printf("    Maximum number of open zones: ");
-	if (opts->dev_info.max_nr_open_zones == (unsigned int)-1)
-		printf("unknown\n");
-	else if (opts->dev_info.max_nr_open_zones == 0)
+	if (opts->dev_info.max_nr_open_zones == 0)
 		printf("no limit\n");
 	else
 		printf("%u\n", opts->dev_info.max_nr_open_zones);
 
 	printf("    Maximum number of active zones: ");
-	if (opts->dev_info.max_nr_active_zones == (unsigned int)-1)
-		printf("unknown\n");
-	else if (opts->dev_info.max_nr_active_zones == 0)
+	if (opts->dev_info.max_nr_active_zones == 0)
 		printf("no limit\n");
 	else
 		printf("%u\n", opts->dev_info.max_nr_active_zones);
