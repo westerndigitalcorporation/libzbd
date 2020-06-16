@@ -83,8 +83,6 @@ static enum zbd_dev_model zbd_get_dev_model(char *devname)
 		return -1;
 	}
 
-	printf("### mode %zu %s\n", sizeof(str), str);
-
 	if (strcmp(str, "host-aware") == 0)
 		return ZBD_DM_HOST_AWARE;
 	if (strcmp(str, "host-managed") == 0)
@@ -606,13 +604,8 @@ int zbd_zones_operation(int fd, enum zbd_zone_op op, off_t ofst, off_t len)
 
 	ofst = (ofst & (~zone_size_mask)) >> SECTOR_SHIFT;
 	if ((unsigned long long)ofst >= zbdi->nr_sectors ||
-	    end == (unsigned long long)ofst) {
-		printf("zone op %llu/%llu + %llu\n",
-	       (unsigned long long)ofst,
-	       (unsigned long long)zbdi->nr_sectors,
-	       (unsigned long long)(end - ofst));
+	    end == (unsigned long long)ofst)
 		return 0;
-	}
 
 	range.sector = ofst;
 	range.nr_sectors = end - ofst;
