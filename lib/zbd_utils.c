@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <limits.h>
 
 /*
@@ -98,10 +99,80 @@ static struct zbd_str zbd_zcond_str[] = {
 	{ ZBD_ZONE_COND_OFFLINE,	"offline",		"ol"	},
 	{ UINT_MAX,			"unknown",		"??"	}
 };
+
 /**
  * zbd_zone_cond_str - Returns a string describing a zone condition
  */
 const char *zbd_zone_cond_str(struct zbd_zone *z, bool s)
 {
 	return zbd_get_str(zbd_zcond_str, z->cond, s);
+}
+
+/*
+ * Strip a string of trailing spaces and carriage return.
+ */
+static int zbd_str_strip(char *str)
+{
+	int len = strlen(str) - 1;
+
+	while (len > 0) {
+		if (str[len] == ' ' ||
+		    str[len] == '\t' ||
+		    str[len] == '\r' ||
+		    str[len] == '\n') {
+			str[len] = '\0';
+			len--;
+		} else {
+			break;
+		}
+	}
+
+	return len;
+}
+
+static int zbd_get_sysfs_attr(char *devname, const char *attr,
+			      char *str, int str_len)
+{
+	char attr_path[128];
+	FILE *file;
+	int ret = 0;
+
+	snprintf(attr_path, sizeof(attr_path), "/sys/block/%s/%s",
+		 devname, attr);
+	file = fopen(attr_path, "r");
+	if (!file)
+		return -ENOENT;
+
+	if (!fgets(str, str_len, file)) {
+		ret = -EINVAL;
+		goto close;
+	}
+
+	if (!zbd_str_strip(str))
+		ret = -EINVAL;
+
+close:
+	fclose(file);
+
+	return ret;
+}
+
+int zbd_get_sysfs_attr_int64(char *devname, const char *attr, long long *val)
+{
+	char str[128];
+	int ret;
+
+	ret = zbd_get_sysfs_attr(devname, attr, str, 128);
+	if (ret)
+		return ret;
+
+	*val = atoll(str);
+
+	return 0;
+}
+
+int zbd_get_sysfs_attr_str(char *devname, const char *attr,
+			   char *val, int val_len)
+{
+	return zbd_get_sysfs_attr(devname, attr, val, val_len);
 }

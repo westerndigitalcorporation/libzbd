@@ -50,6 +50,11 @@ struct blk_zone zones[0];
 #define blk_zone_report blk_zone_report_v2
 #endif /* HAVE_BLK_ZONE_REP_V2 */
 
+extern int zbd_get_sysfs_attr_int64(char *devname, const char *attr,
+				    long long *val);
+extern int zbd_get_sysfs_attr_str(char *devname, const char *attr,
+				  char *val, int val_len);
+
 /*
  * Library log level (per thread).
  */

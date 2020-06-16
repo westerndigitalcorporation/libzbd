@@ -62,37 +62,28 @@ static int zbd_dev_path(const char *filename, char **path, char **devname)
 static enum zbd_dev_model zbd_get_dev_model(char *devname)
 {
 	char str[128];
-	FILE *file;
 	int ret;
 
 	/* Check that this is a zoned block device */
-	snprintf(str, sizeof(str),
-		 "/sys/block/%s/queue/zoned",
-		 devname);
-	file = fopen(str, "r");
-	if (!file) {
+	ret = zbd_get_sysfs_attr_str(devname, "queue/zoned",
+				     str, sizeof(str));
+	if (ret) {
+		long long val;
+
 		/*
 		 * Assume old kernel or kernel without ZBD support enabled: try
 		 * a sysfs file that must exist for all block devices. If it is
 		 * found, then this is a regular non-zoned device.
 		 */
-		snprintf(str, sizeof(str),
-			 "/sys/block/%s/queue/logical_block_size",
-			 devname);
-		file = fopen(str, "r");
-		if (file) {
-			fclose(file);
+		ret = zbd_get_sysfs_attr_int64(devname,
+					       "queue/logical_block_size",
+					       &val);
+		if (ret == 0)
 			return ZBD_DM_NOT_ZONED;
-		}
 		return -1;
 	}
 
-	memset(str, 0, sizeof(str));
-	ret = fscanf(file, "%s", str);
-	fclose(file);
-
-	if (ret != 1)
-		return -1;
+	printf("### mode %zu %s\n", sizeof(str), str);
 
 	if (strcmp(str, "host-aware") == 0)
 		return ZBD_DM_HOST_AWARE;
@@ -104,40 +95,14 @@ static enum zbd_dev_model zbd_get_dev_model(char *devname)
 	return -1;
 }
 
-/*
- * Get a string in a file and strip it of trailing
- * spaces and carriage return.
- */
-static int zbd_get_str(FILE *file, char *str)
-{
-	int len = 0;
 
-	if (fgets(str, 128, file)) {
-		len = strlen(str) - 1;
-		while (len > 0) {
-			if (str[len] == ' ' ||
-			    str[len] == '\t' ||
-			    str[len] == '\r' ||
-			    str[len] == '\n') {
-				str[len] = '\0';
-				len--;
-			} else {
-				break;
-			}
-		}
-	}
-
-	return len;
-}
 
 /*
  * Get max number of open/active zones.
  */
 static void zbd_get_max_resources(char *devname, struct zbd_info *zbdi)
 {
-	unsigned int val;
-	char str[128];
-	FILE *file;
+	long long val;
 	int ret;
 
 	/*
@@ -150,32 +115,15 @@ static void zbd_get_max_resources(char *devname, struct zbd_info *zbdi)
 	 * Default both to unlimited, and set a limit if we managed to read
 	 * a limit from sysfs successfully.
 	 */
-	zbdi->max_nr_open_zones = 0;
-	zbdi->max_nr_active_zones = 0;
+	ret = zbd_get_sysfs_attr_int64(devname, "queue/max_open_zones", &val);
+	if (ret)
+		val = 0;
+	zbdi->max_nr_open_zones = val;
 
-	snprintf(str, sizeof(str),
-		 "/sys/block/%s/queue/max_open_zones",
-		 devname);
-	file = fopen(str, "r");
-	if (file) {
-		ret = fscanf(file, "%u", &val);
-		if (ret == 1)
-			zbdi->max_nr_open_zones = val;
-		fclose(file);
-	}
-
-	memset(str, 0, sizeof(str));
-
-	snprintf(str, sizeof(str),
-		 "/sys/block/%s/queue/max_active_zones",
-		 devname);
-	file = fopen(str, "r");
-	if (file) {
-		ret = fscanf(file, "%u", &val);
-		if (ret == 1)
-			zbdi->max_nr_active_zones = val;
-		fclose(file);
-	}
+	ret = zbd_get_sysfs_attr_int64(devname, "queue/max_active_zones", &val);
+	if (ret)
+		val = 0;
+	zbdi->max_nr_active_zones = val;
 }
 
 /*
@@ -184,47 +132,25 @@ static void zbd_get_max_resources(char *devname, struct zbd_info *zbdi)
 static int zbd_get_vendor_id(char *devname, struct zbd_info *zbdi)
 {
 	char str[128];
-	FILE *file;
-	int n = 0, len;
+	int ret, n = 0;
 
-	snprintf(str, sizeof(str),
-		 "/sys/block/%s/device/vendor",
-		 devname);
-	file = fopen(str, "r");
-	if (file) {
-		len = zbd_get_str(file, str);
-		if (len)
-			n = snprintf(zbdi->vendor_id,
-				     ZBD_VENDOR_ID_LENGTH,
-				     "%s ", str);
-		fclose(file);
-	}
+	ret = zbd_get_sysfs_attr_str(devname, "device/vendor",
+				     str, sizeof(str));
+	if (!ret)
+		n = snprintf(zbdi->vendor_id, ZBD_VENDOR_ID_LENGTH,
+			     "%s ", str);
 
-	snprintf(str, sizeof(str),
-		 "/sys/block/%s/device/model",
-		 devname);
-	file = fopen(str, "r");
-	if (file) {
-		len = zbd_get_str(file, str);
-		if (len)
-			n += snprintf(&zbdi->vendor_id[n],
-				      ZBD_VENDOR_ID_LENGTH - n,
-				      "%s ", str);
-		fclose(file);
-	}
+	ret = zbd_get_sysfs_attr_str(devname, "device/model",
+				     str, sizeof(str));
+	if (!ret)
+		n += snprintf(&zbdi->vendor_id[n], ZBD_VENDOR_ID_LENGTH - n,
+			      "%s ", str);
 
-	snprintf(str, sizeof(str),
-		 "/sys/block/%s/device/rev",
-		 devname);
-	file = fopen(str, "r");
-	if (file) {
-		len = zbd_get_str(file, str);
-		if (len)
-			n += snprintf(&zbdi->vendor_id[n],
-				      ZBD_VENDOR_ID_LENGTH - n,
-				      "%s", str);
-		fclose(file);
-	}
+	ret = zbd_get_sysfs_attr_str(devname, "device/rev",
+				     str, sizeof(str));
+	if (!ret)
+		n += snprintf(&zbdi->vendor_id[n], ZBD_VENDOR_ID_LENGTH - n,
+			      "%s", str);
 
 	return n > 0;
 }
