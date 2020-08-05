@@ -460,6 +460,16 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 		return -1;
 	}
 
+	/*
+	 * To get zone reports, we need zones and nr_zones.
+	 * To get only the number of zones, we need only nr_zones.
+	 */
+	if ((!zones && !nr_zones) || (zones && !nr_zones))
+		return -1;
+
+	if (zones && !*nr_zones)
+		return 0;
+
 	zone_size_mask = zbdi->zone_size - 1;
 	if (len == 0)
 		len = zbdi->nr_sectors << SECTOR_SHIFT;
@@ -477,7 +487,7 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 
 	/* Get all zones information */
 	rep_nr_zones = ZBD_REPORT_MAX_NR_ZONE;
-	if (nr_zones && *nr_zones && *nr_zones < rep_nr_zones)
+	if (zones && *nr_zones && *nr_zones < rep_nr_zones)
 		rep_nr_zones = *nr_zones;
 	rep_size = sizeof(struct blk_zone_report) +
 		sizeof(struct blk_zone) * rep_nr_zones;
@@ -509,8 +519,13 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 
 		for (i = 0; i < rep->nr_zones; i++) {
 
-			if ((*nr_zones && (n >= *nr_zones)) ||
-			    ((unsigned long long)ofst >= end))
+			/*
+			 * When only reporting the number of zones
+			 * (zones == NULL), ignore nr_zones value.
+			 */
+			if (zones &&
+			    ((*nr_zones && (n >= *nr_zones)) ||
+			     ((unsigned long long)ofst >= end)))
 				break;
 
 			zbd_parse_zone(&z, &blkz[i], rep);
