@@ -441,8 +441,7 @@ static inline void zbd_parse_zone(struct zbd_zone *zone, struct blk_zone *blkz,
 /**
  * zbd_report_zones - Get zone information
  */
-int zbd_report_zones(int fd, off_t ofst, off_t len,
-		     enum zbd_report_option ro,
+int zbd_report_zones(int fd, off_t ofst, off_t len, enum zbd_report_option ro,
 		     struct zbd_zone *zones, unsigned int *nr_zones)
 {
 	struct zbd_info *zbdi = zbd_get_fd(fd);
@@ -450,7 +449,7 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 	struct blk_zone_report *rep;
 	size_t rep_size;
 	unsigned int rep_nr_zones;
-	unsigned int n = 0, i = 0;
+	unsigned int nrz, n = 0, i = 0;
 	struct blk_zone *blkz;
 	struct zbd_zone z;
 	int ret;
@@ -467,8 +466,17 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 	if ((!zones && !nr_zones) || (zones && !nr_zones))
 		return -1;
 
-	if (zones && !*nr_zones)
-		return 0;
+	/*
+	 * When reporting only the number of zones (zones == NULL case),
+	 * ignore the value pointed by nr_zones.
+	 */
+	if (zones) {
+		nrz = *nr_zones;
+		if (!nrz)
+			return 0;
+	} else {
+		nrz = 0;
+	}
 
 	zone_size_mask = zbdi->zone_size - 1;
 	if (len == 0)
@@ -487,8 +495,8 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 
 	/* Get all zones information */
 	rep_nr_zones = ZBD_REPORT_MAX_NR_ZONE;
-	if (zones && *nr_zones && *nr_zones < rep_nr_zones)
-		rep_nr_zones = *nr_zones;
+	if (nrz && nrz < rep_nr_zones)
+		rep_nr_zones = nrz;
 	rep_size = sizeof(struct blk_zone_report) +
 		sizeof(struct blk_zone) * rep_nr_zones;
 	rep = (struct blk_zone_report *)malloc(rep_size);
@@ -498,8 +506,7 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 	}
 
 	blkz = (struct blk_zone *)(rep + 1);
-	while (((!*nr_zones) || (n < *nr_zones)) &&
-	       ((unsigned long long)ofst < end)) {
+	while ((!nrz || n < nrz) && (unsigned long long)ofst < end) {
 
 		memset(rep, 0, rep_size);
 		rep->sector = ofst;
@@ -518,14 +525,8 @@ int zbd_report_zones(int fd, off_t ofst, off_t len,
 			break;
 
 		for (i = 0; i < rep->nr_zones; i++) {
-
-			/*
-			 * When only reporting the number of zones
-			 * (zones == NULL), ignore nr_zones value.
-			 */
-			if (zones &&
-			    ((*nr_zones && (n >= *nr_zones)) ||
-			     ((unsigned long long)ofst >= end)))
+			if ((nrz && (n >= nrz)) ||
+			    ((unsigned long long)ofst >= end))
 				break;
 
 			zbd_parse_zone(&z, &blkz[i], rep);
