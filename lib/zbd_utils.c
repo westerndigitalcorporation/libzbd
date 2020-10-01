@@ -113,21 +113,21 @@ const char *zbd_zone_cond_str(struct zbd_zone *z, bool s)
  */
 static int zbd_str_strip(char *str)
 {
-	int len = strlen(str) - 1;
+	int i = strlen(str) - 1;
 
-	while (len > 0) {
-		if (str[len] == ' ' ||
-		    str[len] == '\t' ||
-		    str[len] == '\r' ||
-		    str[len] == '\n') {
-			str[len] = '\0';
-			len--;
+	while (i >= 0) {
+		if (str[i] == ' ' ||
+		    str[i] == '\t' ||
+		    str[i] == '\r' ||
+		    str[i] == '\n') {
+			str[i] = '\0';
+			i--;
 		} else {
 			break;
 		}
 	}
 
-	return len;
+	return i + 1;
 }
 
 static int zbd_get_sysfs_attr(char *devname, const char *attr,
