@@ -307,19 +307,23 @@ enum zbd_report_option {
  * @brief Get zone information
  * @param[in] fd	File descriptor obtained with \a zbd_open
  * @param[in] ofst	Byte offset from which to report zones
- * @param[in] len	Maximum length in bytes of the device capacity reported
+ * @param[in] len	Maximum length in bytes from \a ofst of the device
+ *                      capacity range to inspect for the report
  * @param[in] ro	Reporting options
  * @param[in] zones	Pointer to the array of zone information to fill
  * @param[out] nr_zones	Number of zones in the array \a zones
  *
- * Get zone information of all zones in the range [ofst..ofst+len] and
- * matching the \a ro option. Return the zone information obtained in the
- * array \a zones and the number of zones reported at the address specified
- * by \a nr_zones.
+ * Get zone information of at most \a nr_zones zones in the range
+ * [ofst..ofst+len] and matching the \a ro option. If \a len is 0,
+ * at most \a nr_zones zones starting from \a ofst up to the end on the device
+ * capacity will be reported.
+ * Return the zone information obtained in the array \a zones and the number
+ * of zones reported at the address specified by \a nr_zones.
  * The array \a zones must be allocated by the caller and \a nr_zones
  * must point to the size of the allocated array (number of zone information
  * structures in the array). The first zone reported will be the zone
- * containing or after \a ofst.
+ * containing or after \a ofst. The last zone reported will be the zone
+ * containing or before \a ofst + \a len.
  *
  * @return Returns 0 on success and -1 otherwise.
  */
@@ -328,10 +332,11 @@ extern int zbd_report_zones(int fd, off_t ofst, off_t len,
 			    struct zbd_zone *zones, unsigned int *nr_zones);
 
 /**
- * @brief Get the number of zones matches
+ * @brief Get number of zones
  * @param[in] fd	File descriptor obtained with \a zbd_open
  * @param[in] ofst	Byte offset from which to report zones
- * @param[in] len	Maximum length in bytes of the device capacity reported
+ * @param[in] len	Maximum length in bytes from \a ofst of the device
+ *                      capacity range to inspect for the report
  * @param[in] ro	Reporting options
  * @param[out] nr_zones	The number of matching zones
  *
@@ -353,7 +358,8 @@ static inline int zbd_report_nr_zones(int fd, off_t ofst, off_t len,
  * @brief Get zone information
  * @param[in] fd	File descriptor obtained with \a zbd_open
  * @param[in] ofst	Byte offset from which to report zones
- * @param[in] len	Maximum length in bytes of the device capacity reported
+ * @param[in] len	Maximum length in bytes from \a ofst of the device
+ *                      capacity range to inspect for the report
  * @param[in] ro	Reporting options
  * @param[out] zones	The array of zone information filled
  * @param[out] nr_zones	Number of zones in the array \a zones
@@ -362,8 +368,8 @@ static inline int zbd_report_nr_zones(int fd, off_t ofst, off_t len,
  * array of zone information structures and return the address of the array
  * at the address specified by \a zones. The size of the array allocated and
  * filled is returned at the address specified by \a nr_zones. Freeing of the
- * memory used by the array of zone information strcutrues allocated by this
- * function is the responsability of the caller.
+ * memory used by the array of zone information structures allocated by this
+ * function is the responsability of the user.
  *
  * @return Returns 0 on success and -1 otherwise.
  * Returns -ENOMEM if memory could not be allocated for \a zones.
@@ -398,10 +404,12 @@ enum zbd_zone_op {
  * @brief Execute an operation on a range of zones
  * @param[in] fd	File descriptor obtained with \a zbd_open
  * @param[in] ofst	Byte offset identifying the first zone to operate on
- * @param[in] len	Maximum length in bytes of all zones to operate on
+ * @param[in] len	Maximum length in bytes from \a ofst of the set of zones
+ *                      to operate on
  * @param[in] op	The operation to perform
  *
  * Exexcute an operation on the range of zones defined by [ofst..ofst+len]
+ * If \a len is 0, all zones from \a ofst will be processed.
  * The validity of the operation (reset, open, close or finish) depends on the
  * type and condition of the target zones.
  *
@@ -413,10 +421,12 @@ extern int zbd_zones_operation(int fd, enum zbd_zone_op op,
 /**
  * @brief Reset the write pointer of a range of zones
  * @param[in] fd	File descriptor obtained with \a zbd_open
- * @param[in] ofst	Byte offset identifying the first zone to operate on
- * @param[in] len	Maximum length in bytes of all zones to operate on
+ * @param[in] ofst	Byte offset identifying the first zone to reset
+ * @param[in] len	Maximum length in bytes from \a ofst of the set of zones
+ *                      to reset
  *
  * Resets the write pointer of the zones in the range [ofst..ofst+len].
+ * If \a len is 0, all zones from \a ofst will be processed.
  *
  * @return Returns 0 on success and -1 otherwise.
  */
@@ -428,10 +438,12 @@ static inline int zbd_reset_zones(int fd, off_t ofst, off_t len)
 /**
  * @brief Explicitly open a range of zones
  * @param[in] fd	File descriptor obtained with \a zbd_open
- * @param[in] ofst	Byte offset identifying the first zone to operate on
- * @param[in] len	Maximum length in bytes of all zones to operate on
+ * @param[in] ofst	Byte offset identifying the first zone to open
+ * @param[in] len	Maximum length in bytes from \a ofst of the set of zones
+ *                      to open
  *
- * Explicitly open the zones in the range [ofst..ofst+len].
+ * Explicitly open the zones in the range [ofst..ofst+len]. If \a len is 0,
+ * all zones from \a ofst will be processed.
  *
  * @return Returns 0 on success and -1 otherwise.
  */
@@ -443,10 +455,12 @@ static inline int zbd_open_zones(int fd, off_t ofst, off_t len)
 /**
  * @brief Close a range of zones
  * @param[in] fd	File descriptor obtained with \a zbd_open
- * @param[in] ofst	Byte offset identifying the first zone to operate on
- * @param[in] len	Maximum length in bytes of all zones to operate on
+ * @param[in] ofst	Byte offset identifying the first zone to close
+ * @param[in] len	Maximum length in bytes from \a ofst of the set of zones
+ *                      to close
  *
  * Close the zones in the range [ofst..ofst+len].
+ * If \a len is 0, all zones from \a ofst will be processed.
  *
  * @return Returns 0 on success and -1 otherwise.
  */
@@ -458,10 +472,12 @@ static inline int zbd_close_zones(int fd, off_t ofst, off_t len)
 /**
  * @brief Finish a range of zones
  * @param[in] fd	File descriptor obtained with \a zbd_open
- * @param[in] ofst	Byte offset identifying the first zone to operate on
- * @param[in] len	Maximum length in bytes of all zones to operate on
+ * @param[in] ofst	Byte offset identifying the first zone to finish
+ * @param[in] len	Maximum length in bytes from \a ofst of the set of zones
+ *                      to finish
  *
  * Finish the zones in the range [ofst..ofst+len].
+ * If \a len is 0, all zones from \a ofst will be processed.
  *
  * @return Returns 0 on success and -1 otherwise.
  */
