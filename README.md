@@ -113,16 +113,27 @@ $ ./configure --help
 
 ### Building RPM Packages
 
-The following command will build redistributable *libzbd* rpm packages.
+To build redistributable *libzbd* rpm packages, the source tree must be
+configured as follows.
+
+```
+$ ./configure --enable-rpm
+```
+
+This command will check for the availability of the *rpm* and *rpmbuild*
+utilities which are mandatory to build *libzbd* RPM packages. Once configured,
+the RPM packages can be built using the following command.
 
 ```
 $ make rpm
 ```
 
-Three rpm packages are built: a binary package providing the library and
+Three RPM packages are built: a binary package providing the library and
 executable tools, a development package providing *libzbd* header files and a
-source rpm package. The source rpm package can be used to build the binary and
-development rpm packages outside of *libzbd* source tree using the following
+source RPM package. *debuginfo* and *debugsource* packages are also built.
+
+The source RPM package can be used to build the binary and
+development RPM packages outside of *libzbd* source tree using the following
 command.
 
 ```

@@ -34,7 +34,22 @@ fi
 LIBS="$PTHREAD_LIBS $LIBS"
 CC="$PTHREAD_CC"
 
-# Checks for header files.
+# Checks for rpm package builds
+AC_PATH_PROG([RPMBUILD], [rpmbuild], [notfound])
+AC_PATH_PROG([RPM], [rpm], [notfound])
+
+AC_ARG_ENABLE([rpm],
+	[AS_HELP_STRING([--enable-rpm],
+		[Configure for building RPM package (default=no, requires rpm and rpmbuild)])],
+	[AS_IF([test "x$enable_rpm" = xyes],
+		[AS_IF([test "x$RPMBUILD" = xnotfound],
+			[AC_MSG_ERROR([rpmbuild is required for --enable-rpm])],
+		[test "x$RPM" = xnotfound],
+			[AC_MSG_ERROR([rpm is required for --enable-rpm])])])],
+	[enable_rpm=no])
+AM_CONDITIONAL(BUILDING_RPM, test "x$enable_rpm" = xyes)
+
+# Checks for header files
 AC_CHECK_HEADER(libgen.h, [],
 		[AC_MSG_ERROR([Couldn't find libgen.h])],
 		[[#include <libgen.h>]])
