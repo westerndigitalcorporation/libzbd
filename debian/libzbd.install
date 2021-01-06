@@ -1,0 +1,5 @@
+usr/lib/*/*.so
+usr/lib/*/*.a
+usr/lib/*/pkgconfig
+usr/bin/*
+usr/share/man/*

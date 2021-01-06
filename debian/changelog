@@ -1,0 +1,27 @@
+libzbd (1.1.0) unstable; urgency=medium
+
+  * Add support for zone capacity, max open and max active limits
+  * Various fixes
+
+ -- Damien Le Moal <damien.lemoal@wdc.com>  Wed, 06 Jan 2021 15:28:37 +0900
+
+libzbd (1.0.0) unstable; urgency=medium
+
+  * Improve tools and documentation
+  * Library API changes
+  * Various fixes
+
+ -- Damien Le Moal <damien.lemoal@wdc.com>  Wed, 06 Jan 2021 15:28:37 +0900
+
+libzbd (0.0.2) unstable; urgency=medium
+
+  * Improve tools and documentation
+  * Various fixes
+
+ -- Damien Le Moal <damien.lemoal@wdc.com>  Wed, 06 Jan 2021 15:28:37 +0900
+
+libzbd (0.0.1) unstable; urgency=medium
+
+  * Initial Release.
+
+ -- Damien Le Moal <damien.lemoal@wdc.com>  Wed, 06 Jan 2021 15:28:37 +0900

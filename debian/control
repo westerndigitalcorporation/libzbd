@@ -1,0 +1,28 @@
+Source: libzbd
+Section: devel
+Priority: extra
+Maintainer: Damien Le Moal <damien.lemoal@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
+Build-Depends: autoconf, autoconf-archive, automake, autotools-dev,
+	debhelper, dh-autoreconf, libtool, pkg-config
+Standards-Version: 4.5.0
+Homepage: https://github.com/westerndigitalcorporation/libzbd
+
+Package: libzbd
+Section: libs
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}
+Description: Zoned Block Device Manipulation Library
+ libzbd is a user library providing functions simplifying access to zoned
+ block device information and the execution of zone management operations.
+ .
+ This library also comes with the zbd command line application to display
+ a zoned block device zone configuration and manipulate the device zones.
+
+Package: libzbd-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: libzbd (= ${binary:Version}), ${misc:Depends}
+Description: libzbd development package
+ Provide header files for libzbd applications development.

@@ -61,3 +61,27 @@ rpm:
 	@echo "To build RPM packages, run configure with --enable-rpm"
 	exit 1
 endif
+
+if BUILDING_DEB
+debdir = $(abs_top_builddir)/debbuild
+debsrcpkg=libzbd-$(PACKAGE_VERSION).orig.tar.gz
+debsrcdir=$(debdir)/libzbd-$(PACKAGE_VERSION)
+
+deb: dist
+	@echo "Building Debian packages in $(debsrcdir)..."
+	DEB_BUILD_MAINT_OPTIONS=hardening=-format
+	@mkdir -p $(debdir)
+	@mv libzbd-$(PACKAGE_VERSION).tar.gz $(debdir)/$(debsrcpkg)
+	cd $(debdir); \
+	tar --extract --gz --file $(debsrcpkg); \
+	cd $(debsrcdir); \
+	cp -r $(abs_top_builddir)/debian debian; \
+	$(DEBUILD) -rfakeroot -D -us -uc; \
+	cd $(abs_top_builddir)
+	@mv $(debdir)/*.deb $(abs_top_builddir)
+	@rm --recursive --force $(debdir)
+else
+deb:
+	@echo "To build Debian packages, run configure with --enable-deb"
+	exit 1
+endif

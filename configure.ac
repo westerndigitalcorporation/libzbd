@@ -49,6 +49,20 @@ AC_ARG_ENABLE([rpm],
 	[enable_rpm=no])
 AM_CONDITIONAL(BUILDING_RPM, test "x$enable_rpm" = xyes)
 
+# Checks for deb package builds
+AC_PATH_PROG([DEBUILD], [dpkg-buildpackage], [notfound])
+
+AC_ARG_ENABLE([deb],
+	[AS_HELP_STRING([--enable-deb],
+		[Configure for building Debian package (default=no, requires dpkg-buildpackage)])],
+	[AS_IF([test "x$enable_deb" = xyes],
+		[AS_IF([test "x$DEBUILD" = xnotfound],
+			[AC_MSG_ERROR([dpkg-buildpackage is required for --enable-deb])],
+		[test "x$enable_rpm" = xyes],
+			[AC_MSG_ERROR([--enable-rpm and --enable-deb are mutually exclusive])])])],
+	[enable_deb=no])
+AM_CONDITIONAL([BUILDING_DEB], [test "x$enable_deb" = xyes])
+
 # Checks for header files
 AC_CHECK_HEADER(libgen.h, [],
 		[AC_MSG_ERROR([Couldn't find libgen.h])],

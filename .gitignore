@@ -29,6 +29,10 @@ rpmbuild
 *.rpm
 *.spec
 
+# Debian packages build files and directories
+debbuild
+*.deb
+
 # Other
 Thumbs.db
 desktop.ini

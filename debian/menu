@@ -1,0 +1,3 @@
+?package(libzbc): \
+  section="Applications/Programming"\
+  title="libzbd"
