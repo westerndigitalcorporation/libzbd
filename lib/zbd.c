@@ -213,9 +213,37 @@ static int zbd_get_zone_size(int fd, char *devname, struct zbd_info *zbdi)
 	return 0;
 }
 
+/*
+ * Get total number of zones.
+ */
+static int zbd_get_nr_zones(int fd, char *devname, struct zbd_info *zbdi)
+{
+	__u32 nr_zones;
+
+#ifdef BLKGETNRZONES
+	int ret = ioctl(fd, BLKGETNRZONES, &nr_zones);
+	if (ret != 0) {
+		zbd_error("ioctl BLKGETNRZONES failed %d (%s)\n",
+			  errno, strerror(errno));
+		return -1;
+	}
+#else
+	nr_zones = (zbdi->nr_sectors + zbdi->zone_sectors - 1)
+		/ zbdi->zone_sectors;
+#endif
+
+	if (!nr_zones) {
+		zbd_error("Invalid 0 number of zones\n");
+		return -1;
+	}
+
+	zbdi->nr_zones = nr_zones;
+
+	return 0;
+}
+
 static struct zbd_info *zbd_do_get_info(int fd, char *devname)
 {
-	unsigned int nr_zones;
 	unsigned long long size64;
 	struct zbd_info *zbdi;
 	int ret, size32;
@@ -287,17 +315,9 @@ static struct zbd_info *zbd_do_get_info(int fd, char *devname)
 		goto err;
 
 	/* Get number of zones */
-	ret = ioctl(fd, BLKGETNRZONES, &nr_zones);
-	if (ret != 0) {
-		zbd_error("ioctl BLKGETNRZONES failed %d (%s)\n",
-			  errno, strerror(errno));
+	ret = zbd_get_nr_zones(fd, devname, zbdi);
+	if (ret)
 		goto err;
-	}
-	if (!nr_zones) {
-		zbd_error("Invalid 0 number of zones\n");
-		goto err;
-	}
-	zbdi->nr_zones = nr_zones;
 
 	/* Get max number of open/active zones */
 	zbd_get_max_resources(devname, zbdi);
