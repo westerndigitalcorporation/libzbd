@@ -153,9 +153,69 @@ static int zbd_get_vendor_id(char *devname, struct zbd_info *zbdi)
 	return n > 0;
 }
 
+/*
+ * Get zone size in 512B sector unit.
+ */
+#ifdef BLKGETZONESZ
+static int zbd_get_zone_sectors(int fd, char *devname, __u32 *zone_sectors)
+{
+	int ret;
+
+	ret = ioctl(fd, BLKGETZONESZ, zone_sectors);
+	if (ret) {
+		zbd_error("ioctl BLKGETZONESZ failed %d (%s)\n",
+			  errno, strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+#else
+static int zbd_get_zone_sectors(int fd, char *devname, __u32 *zone_sectors)
+{
+	long long zs;
+	int ret;
+
+	ret = zbd_get_sysfs_attr_int64(devname, "queue/chunk_sectors", &zs);
+	if (ret) {
+		zbd_error("Get zone size from sysfs failed\n");
+		return -1;
+	}
+
+	if (zs >= UINT_MAX) {
+		zbd_error("Invalid zone sectors %lld\n", zs);
+		return -1;
+	}
+
+	*zone_sectors = zs;
+
+	return 0;
+}
+#endif
+
+static int zbd_get_zone_size(int fd, char *devname, struct zbd_info *zbdi)
+{
+	__u32 zone_sectors;
+	int ret;
+
+	ret = zbd_get_zone_sectors(fd, devname, &zone_sectors);
+	if (ret)
+		return ret;
+
+	if (!zone_sectors) {
+		zbd_error("Invalid 0 zone size\n");
+		return -1;
+	}
+
+	zbdi->zone_sectors = zone_sectors;
+	zbdi->zone_size = (unsigned long long)zone_sectors << SECTOR_SHIFT;
+
+	return 0;
+}
+
 static struct zbd_info *zbd_do_get_info(int fd, char *devname)
 {
-	unsigned int zone_sectors, nr_zones;
+	unsigned int nr_zones;
 	unsigned long long size64;
 	struct zbd_info *zbdi;
 	int ret, size32;
@@ -222,18 +282,9 @@ static struct zbd_info *zbd_do_get_info(int fd, char *devname)
 	}
 
 	/* Get zone size */
-	ret = ioctl(fd, BLKGETZONESZ, &zone_sectors);
-	if (ret != 0) {
-		zbd_error("ioctl BLKGETZONESZ failed %d (%s)\n",
-			  errno, strerror(errno));
+	ret = zbd_get_zone_size(fd, devname, zbdi);
+	if (ret)
 		goto err;
-	}
-	if (!zone_sectors) {
-		zbd_error("Invalid 0 zone size\n");
-		goto err;
-	}
-	zbdi->zone_sectors = zone_sectors;
-	zbdi->zone_size = (unsigned long long)zone_sectors << SECTOR_SHIFT;
 
 	/* Get number of zones */
 	ret = ioctl(fd, BLKGETNRZONES, &nr_zones);
