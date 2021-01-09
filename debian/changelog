@@ -1,3 +1,12 @@
+libzbd (1.2.0) unstable; urgency=medium
+
+  * Add support for building Debian packages
+  * Fix compilation errors due to missing ioctls with older kernel versions
+  * Fix a bug in zbd_report_zones()
+  * Improved function documentation in header file
+
+ -- Damien Le Moal <damien.lemoal@wdc.com>  Sat, 09 Jan 2021 09:33:00 +0900
+
 libzbd (1.1.0) unstable; urgency=medium
 
   * Add support for zone capacity, max open and max active limits
