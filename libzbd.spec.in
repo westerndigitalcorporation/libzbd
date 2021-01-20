@@ -6,7 +6,7 @@ Name:           libzbd
 Release:        1%{?dist}
 Summary:        A library to control zoned block devices
 Group:		System Environment/Libraries
-License:        LGPL-3.0
+License:        LGPLv3
 URL:		https://github.com/westerndigitalcorporation/libzbd
 Source:         %{name}-%{version}.tar.gz
 
@@ -50,7 +50,9 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_libdir}/*
 %{_bindir}/*
 %{_mandir}/man8/*
+%exclude %{_libdir}/pkgconfig
 
 %files devel
 %{_includedir}/*
+%{_libdir}/pkgconfig
 
