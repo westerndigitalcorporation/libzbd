@@ -1,36 +1,19 @@
-libzbd (1.2.0) unstable; urgency=medium
+libzbd (1.2.0-1) unstable; urgency=medium
 
-  * Add support for building Debian packages
-  * Fix compilation errors due to missing ioctls with older kernel versions
-  * Fix a bug in zbd_report_zones()
-  * Improved function documentation in header file
+  * New upstream version 1.2.0
+    - Update symbols.
+    - Update copyright.
 
- -- Damien Le Moal <damien.lemoal@wdc.com>  Sat, 09 Jan 2021 09:33:00 +0900
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Sat, 16 Jan 2021 22:53:00 +0000
 
-libzbd (1.1.0) unstable; urgency=medium
+libzbd (1.1.0-2) unstable; urgency=medium
 
-  * Add support for zone capacity, max open and max active limits
-  * Various fixes
+  * Source only upload.
 
- -- Damien Le Moal <damien.lemoal@wdc.com>  Wed, 06 Jan 2021 15:28:37 +0900
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Sun, 10 Jan 2021 18:23:39 +0000
 
-libzbd (1.0.0) unstable; urgency=medium
+libzbd (1.1.0-1) unstable; urgency=medium
 
-  * Improve tools and documentation
-  * Library API changes
-  * Various fixes
+  * Initial release (Closes: #977914)
 
- -- Damien Le Moal <damien.lemoal@wdc.com>  Wed, 06 Jan 2021 15:28:37 +0900
-
-libzbd (0.0.2) unstable; urgency=medium
-
-  * Improve tools and documentation
-  * Various fixes
-
- -- Damien Le Moal <damien.lemoal@wdc.com>  Wed, 06 Jan 2021 15:28:37 +0900
-
-libzbd (0.0.1) unstable; urgency=medium
-
-  * Initial Release.
-
- -- Damien Le Moal <damien.lemoal@wdc.com>  Wed, 06 Jan 2021 15:28:37 +0900
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Wed, 23 Dec 2020 23:39:53 +0000
