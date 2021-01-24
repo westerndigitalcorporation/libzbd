@@ -1,5 +1,0 @@
-The Debian Package libzbd
-----------------------------
-
-libzbd is a library providing functions simplifying access to zoned block
-device information and the execution of zone management operations.

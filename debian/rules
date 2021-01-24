@@ -1,20 +1,4 @@
 #!/usr/bin/make -f
 
-# Uncomment this to turn on verbose mode.
-export DH_VERBOSE = 1
-
 %:
-	dh $@ --with autoreconf
-
-override_dh_auto_configure:
-	dh_auto_configure -- --with-math
-
-override_dh_shlibdeps:
-	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info
-
-override_dh_install:
-	dh_install --list-missing
-
-override_dh_auto_test:
-
-override_dh_strip_nondeterminism:
+	dh $@

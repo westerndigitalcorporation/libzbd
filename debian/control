@@ -1,28 +1,47 @@
 Source: libzbd
-Section: devel
-Priority: extra
-Maintainer: Damien Le Moal <damien.lemoal@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>
-Build-Depends: autoconf, autoconf-archive, automake, autotools-dev,
-	debhelper, dh-autoreconf, libtool, pkg-config
-Standards-Version: 4.5.0
-Homepage: https://github.com/westerndigitalcorporation/libzbd
-
-Package: libzbd
+Priority: optional
+Maintainer: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Build-Depends: debhelper-compat (= 13), autoconf-archive, libgtk-3-dev
+Standards-Version: 4.5.1
 Section: libs
-Architecture: any
-Multi-Arch: same
-Depends: ${misc:Depends}
-Description: Zoned Block Device Manipulation Library
- libzbd is a user library providing functions simplifying access to zoned
- block device information and the execution of zone management operations.
- .
- This library also comes with the zbd command line application to display
- a zoned block device zone configuration and manipulate the device zones.
+Homepage: https://zonedstorage.io/projects/libzbd/
+Vcs-Browser: https://salsa.debian.org/sudip/libzbd
+Vcs-Git: https://salsa.debian.org/sudip/libzbd.git
 
 Package: libzbd-dev
 Section: libdevel
-Architecture: any
+Architecture: linux-any
 Multi-Arch: same
-Depends: libzbd (= ${binary:Version}), ${misc:Depends}
-Description: libzbd development package
- Provide header files for libzbd applications development.
+Depends: libzbd1 (= ${binary:Version}), ${misc:Depends}
+Description: Library to manipulate zoned block devices (development files)
+ libzbd uses the kernel provided zoned block device interface based on the
+ ioctl() system call. It provides functions for discovering and managing the
+ state of zones of zoned block devices. Read and write accesses to the devices
+ can be done using standard standard I/O system calls.
+ .
+ This package is needed to compile programs against libzbd.
+
+Package: libzbd1
+Architecture: linux-any
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Library to manipulate zoned block devices (shared library)
+ libzbd uses the kernel provided zoned block device interface based on the
+ ioctl() system call. It provides functions for discovering and managing the
+ state of zones of zoned block devices. Read and write accesses to the devices
+ can be done using standard standard I/O system calls.
+ .
+ This package contains the shared library.
+
+Package: zbd-utils
+Section: utils
+Architecture: linux-any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Utilities to manipulate zoned block devices
+ zbd is a command line utility to report, open, close, reset and finish zones
+ of a device.
+ .
+ gzbd is similar to zbd but using a graphical user interface.
+ .
+ gzbd-viewer is a graphical user interface showing the condition and state of
+ zones of a zoned block device.

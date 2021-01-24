@@ -1,2 +1,4 @@
-usr/include/*
-usr/lib/*/pkgconfig/*.pc
+usr/include/libzbd
+usr/lib/*/libzbd.a
+usr/lib/*/libzbd.so
+usr/lib/*/pkgconfig
