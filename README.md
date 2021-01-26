@@ -140,19 +140,6 @@ command.
 $ rpmbuild --rebuild libzbd-<version>.src.rpm
 ```
 
-### Building Debian Packages
-
-The procedure is similar to building RPM packages.
-
-```
-$ ./configure --enable-deb
-$ make deb
-```
-
-The above commands will build thre *.deb* packages: one binary package
-containing the libarary and example tools, a development package providing the
-library header files and a debug package.
-
 ## Library
 
 *libzbd* defines a set of functions and data structures simplifying the
