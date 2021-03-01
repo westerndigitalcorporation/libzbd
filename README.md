@@ -67,13 +67,15 @@ THAT ARE VENDOR SAMPLES OR NOT PUBLICLY AVAILABLE.
 *libzbd* requires the following packages for compilation:
 
 * autoconf
-* autoconf-archive
 * automake
 * libtool
+* m4
+* autoconf-archive
 
 Since *libzbd* uses Linux(tm) kernel zoned block device interface, compilation
-must be done on a system which has the header files for kernel version 4.10 or
-later.
+must be done on a system where the kernel header file *blkzoned.h* for zoned
+block devices interface is installed under /usr/include/linux/. This implies
+that the kernel version must be higher than version 4.10.0.
 
 To automatically enable compiling the *gzbd* and *gzbd-viewer* graphical
 applications, GTK3 and GTK3 development packages must be installed.
