@@ -26,7 +26,8 @@ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 m4_pattern_allow([AM_PROG_AR])
 LT_INIT
 
-ACX_PTHREAD
+AX_PTHREAD
+
 CFLAGS="$CFLAGS $EXTRA_CFLAGS $PTHREAD_CFLAGS"
 if test "x$enable_debug" == "xno"; then
         CFLAGS="-O2 $CFLAGS"
