@@ -38,6 +38,7 @@ struct zbd_opts {
 	/* Report zones options */
 	bool			rep_csv;
 	bool			rep_num_zones;
+	bool			rep_capacity;
 	enum zbd_report_option	rep_opt;
 };
 
@@ -132,22 +133,6 @@ static int zbd_report(int fd, struct zbd_opts *opts)
 	unsigned int i, nz;
 	int ret;
 
-	if (opts->rep_num_zones) {
-		ret = zbd_report_nr_zones(fd, opts->ofst, opts->len,
-					  opts->rep_opt, &nz);
-		if (ret != 0) {
-			fprintf(stderr,
-				"zbd_report_nr_zones() failed %d\n", ret);
-			ret = 1;
-			goto out;
-		}
-		if (opts->rep_csv)
-			printf("%u\n", nz);
-		else
-			printf("%u / %u zones\n", nz, opts->dev_info.nr_zones);
-		return 0;
-	}
-
 	/* Allocate zone array */
 	nz = (opts->len + opts->dev_info.zone_size - 1) /
 		opts->dev_info.zone_size;
@@ -169,9 +154,40 @@ static int zbd_report(int fd, struct zbd_opts *opts)
 		goto out;
 	}
 
+	if (opts->rep_num_zones) {
+		if (opts->rep_csv) {
+			if (!opts->rep_capacity)
+				printf("%u\n", nz);
+			else
+				printf("%u, ", nz);
+		} else {
+			printf("%u zones\n", nz);
+		}
+		if (!opts->rep_capacity)
+			goto out;
+	}
+
+	if (opts->rep_capacity) {
+		unsigned long long capacity = 0;
+
+		for (i = 0; i < nz; i++)
+			capacity += zbd_zone_capacity(&zones[i]) / opts->unit;
+
+		if (opts->rep_csv) {
+			printf("%llu\n", capacity);
+		} else {
+			if (opts->unit != 1)
+				printf("%llu x %zu B total zone capacity\n",
+				       capacity, opts->unit);
+			else
+				printf("%llu B total zone capacity\n",
+				       capacity);
+		}
+		goto out;
+	}
+
 	if (opts->rep_csv)
 		printf("zone num, type, ofst, len, cap, wp, cond, non_seq, reset\n");
-
 	for (i = 0; i < nz; i++)
 		zbd_print_zone(opts, &zones[i]);
 
@@ -244,12 +260,13 @@ static int zbd_usage(char *cmd)
 	       "		     target range (default: 0)\n"
 	       "  -len <len (B)>   : Size of the zone range to operate on\n"
 	       "		     (default: device capacity)\n"
-	       "  -u <unit (B)>	   : Size unit for the ofst and len options\n"
+	       "  -u <unit (B)>	   : Size unit to use for ofst and len options,\n"
 	       "		     and for displaying zone report results.\n"
 	       "		     (default: 1)\n"
 	       "Report command options:\n"
 	       "  -csv		: Use csv output format\n"
-	       "  -n		: Only output the number of zones in the report\n"
+	       "  -n		: Only output the number of zones reported\n"
+	       "  -c		: Only output the total capacity of zones reported\n"
 	       "  -ro <opt>	: Specify zone report filter.\n"
 	       "		  * \"em\": empty zones\n"
 	       "		  * \"oi\": implicitly open zones\n"
@@ -348,6 +365,10 @@ int main(int argc, char **argv)
 		} else if (strcmp(argv[i], "-n") == 0) {
 
 			opts.rep_num_zones = true;
+
+		} else if (strcmp(argv[i], "-c") == 0) {
+
+			opts.rep_capacity = true;
 
 		} else if (strcmp(argv[i], "-ro") == 0) {
 

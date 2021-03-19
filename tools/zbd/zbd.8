@@ -4,7 +4,7 @@
 .\"
 .TH ZBD 8
 .SH NAME
-zbd \- manage zoned block devices 
+zbd \- manage zoned block devices
 
 .SH SYNOPSIS
 .B zbd
@@ -115,7 +115,11 @@ Options applicable only to the \fBzbd report\fP command are as follows.
 Output zone information using the comma-separated (csv) format.
 .TP
 .BR \-n
-Display the number of zones that are to be reported and exit.
+Display the number of zones that are to be reported.
+.TP
+.BR \-c
+Display the total capacity of all reported zones. When used with the
+\fB-n\fP and \fB-csv\fP options, the number of zones is output first.
 .TP
 .BR "\-ro " \fIfilter\fP
 Sepcify reporting option to filter the zone report. \fIfilter\fP
