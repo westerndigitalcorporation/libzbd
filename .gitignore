@@ -11,6 +11,7 @@
 *.so
 *.so.*
 *.out
+*.dump
 
 zbd
 !tools/zbd

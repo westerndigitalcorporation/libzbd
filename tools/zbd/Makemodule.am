@@ -3,7 +3,10 @@
 # SPDX-FileCopyrightText: 2020 Western Digital Corporation or its affiliates.
 
 bin_PROGRAMS += zbd
-zbd_SOURCES = tools/zbd/zbd.c
+zbd_SOURCES = \
+	tools/zbd/zbd.c \
+	tools/zbd/zbd_dump.c \
+	tools/zbd/zbd.h
 zbd_LDADD = $(libzbd_ldadd)
 
 dist_man8_MANS += tools/zbd/zbd.8

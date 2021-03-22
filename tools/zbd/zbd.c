@@ -5,42 +5,7 @@
  * Authors: Damien Le Moal (damien.lemoal@wdc.com)
  *	    Ting Yao <tingyao@hust.edu.cn>
  */
-#define _LARGEFILE64_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-
-#include "libzbd/zbd.h"
-
-enum zbd_cmd {
-	ZBD_REPORT,
-	ZBD_RESET,
-	ZBD_OPEN,
-	ZBD_CLOSE,
-	ZBD_FINISH,
-};
-
-struct zbd_opts {
-	/* Common options */
-	char			*dev_path;
-	struct zbd_info		dev_info;
-	enum zbd_cmd		cmd;
-	long long		ofst;
-	long long		len;
-	size_t			unit;
-
-	/* Report zones options */
-	bool			rep_csv;
-	bool			rep_num_zones;
-	bool			rep_capacity;
-	enum zbd_report_option	rep_opt;
-};
+#include "zbd.h"
 
 static int zbd_mgmt(int fd, struct zbd_opts *opts)
 {
@@ -145,13 +110,22 @@ static int zbd_report(int fd, struct zbd_opts *opts)
 		return 1;
 	}
 
-	/* Get zone information */
-	ret = zbd_report_zones(fd, opts->ofst, opts->len, opts->rep_opt,
-			       zones, &nz);
-	if (ret != 0) {
-		fprintf(stderr, "zbd_report_zones() failed %d\n", ret);
-		ret = 1;
-		goto out;
+	if (!opts->rep_dump) {
+		/* Get zone information from the device */
+		ret = zbd_report_zones(fd, opts->ofst, opts->len, opts->rep_opt,
+				       zones, &nz);
+		if (ret != 0) {
+			fprintf(stderr, "zbd_report_zones() failed %d\n", ret);
+			ret = 1;
+			goto out;
+		}
+	} else {
+		/* Get zone information from the dump file */
+		ret = zbd_dump_report_zones(fd, opts, zones, &nz);
+		if (ret != 0) {
+			ret = 1;
+			goto out;
+		}
 	}
 
 	if (opts->rep_num_zones) {
@@ -207,6 +181,7 @@ static struct zbd_action zact[] = {
 	{ zbd_mgmt,	O_RDWR	 },	/* ZBD_OPEN */
 	{ zbd_mgmt,	O_RDWR	 },	/* ZBD_CLOSE */
 	{ zbd_mgmt,	O_RDWR	 },	/* ZBD_FINISH */
+	{ zbd_dump,	O_RDONLY },	/* ZBD_DUMP */
 };
 
 static void zbd_print_dev_info(struct zbd_opts *opts)
@@ -246,13 +221,16 @@ static void zbd_print_dev_info(struct zbd_opts *opts)
 
 static int zbd_usage(char *cmd)
 {
-	printf("Usage: %s <command> [options] <dev>\n"
-	       "Command:\n"
-	       "  report	: Get zone information\n"
-	       "  reset		: Reset zone(s)\n"
-	       "  open		: Explicitly open zone(s)\n"
-	       "  close		: Close zone(s)\n"
-	       "  finish	: Finish zone(s)\n"
+	printf("Usage: %s <command> [options] <device path | dump file>\n"
+	       "Commands:\n"
+	       "  report : Get zone information from a device or from\n"
+	       "           a zone information dump file\n"
+	       "  reset  : Reset zone(s) of a device\n"
+	       "  open   : Explicitly open zone(s) of a device\n"
+	       "  close  : Close zone(s) of a device\n"
+	       "  finish : Finish zone(s) of a device\n"
+	       "  dump   : Dump a device zone information and zone data to\n"
+	       "           files (see -d and -f options).\n"
 	       "Common options:\n"
 	       "  -v		   : Verbose mode (for debug)\n"
 	       "  -i		   : Display device information\n"
@@ -277,7 +255,12 @@ static int zbd_usage(char *cmd)
 	       "              * \"ol\": offline zones\n"
 	       "              * \"nw\": conventional zones\n"
 	       "              * \"ns\": non-seq write resource zones\n"
-	       "              * \"rw\": reset-wp recommended zones\n",
+	       "              * \"rw\": reset-wp recommended zones\n"
+	       "dump and restore commands options:\n"
+	       "  -d <path> : Path where to save dump files.\n"
+	       "  -f <name> : Name prefix for the dump files. If not\n"
+	       "              specified, the device base name is used\n"
+	       "              as a dump file name prefix\n",
 	       cmd);
 	return 1;
 }
@@ -286,11 +269,13 @@ int main(int argc, char **argv)
 {
 	struct zbd_opts opts;
 	bool dev_info = false;
-	int dev_fd, i, ret = 1;
+	int dev_fd = 0, i, ret = 1;
 	long long capacity;
+	char dev_path[PATH_MAX];
 
 	memset(&opts, 0, sizeof(struct zbd_opts));
 	opts.rep_opt = ZBD_RO_ALL;
+	opts.rep_dump = false;
 	opts.unit = 1;
 
 	/* Parse options */
@@ -307,6 +292,8 @@ int main(int argc, char **argv)
 		opts.cmd = ZBD_CLOSE;
 	} else if (strcmp(argv[1], "finish") == 0) {
 		opts.cmd = ZBD_FINISH;
+	} else if (strcmp(argv[1], "dump") == 0) {
+		opts.cmd = ZBD_DUMP;
 	} else {
 		fprintf(stderr, "Invalid command \"%s\"\n", argv[1]);
 		return 1;
@@ -405,6 +392,29 @@ int main(int argc, char **argv)
 				return 1;
 			}
 
+		/*
+		 * Dump command options.
+		 */
+		} else if (strcmp(argv[i], "-d") == 0) {
+
+			if (i >= (argc - 1)) {
+				fprintf(stderr, "Invalid command line\n");
+				return 1;
+			}
+			i++;
+
+			opts.dump_path = argv[i];
+
+		} else if (strcmp(argv[i], "-f") == 0) {
+
+			if (i >= (argc - 1)) {
+				fprintf(stderr, "Invalid command line\n");
+				return 1;
+			}
+			i++;
+
+			opts.dump_prefix = argv[i];
+
 		} else if (argv[i][0] == '-') {
 
 			fprintf(stderr, "Unknown option \"%s\"\n", argv[i]);
@@ -421,19 +431,31 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	/* Open device */
-	opts.dev_path = argv[i];
-	dev_fd = zbd_open(opts.dev_path, zact[opts.cmd].flags| O_LARGEFILE,
-			  &opts.dev_info);
-	if (dev_fd < 0) {
-		if (ret == -ENODEV)
-			fprintf(stderr,
-				"Open %s failed (not a zoned block device)\n",
-				opts.dev_path);
-		else
+	if (!realpath(argv[i], dev_path)) {
+		fprintf(stderr, "Invalid device path %s\n", argv[i]);
+		return 1;
+	}
+	opts.dev_path = dev_path;
+
+	/*
+	 * Special case for zone report using zone info dump file.
+	 */
+	if (opts.cmd == ZBD_REPORT) {
+		dev_fd = zbd_open_dump(&opts);
+		if (dev_fd < 0)
+			return 1;
+	}
+
+	if (!dev_fd) {
+		/* Open device */
+		dev_fd = zbd_open(opts.dev_path,
+				  zact[opts.cmd].flags | O_LARGEFILE,
+				  &opts.dev_info);
+		if (dev_fd < 0) {
 			fprintf(stderr, "Open %s failed (%s)\n",
 				opts.dev_path, strerror(errno));
-		return 1;
+			return 1;
+		}
 	}
 
 	/* Check unit, offset and length */
@@ -467,7 +489,10 @@ int main(int argc, char **argv)
 	ret = zact[opts.cmd].action(dev_fd, &opts);
 
 out:
-	zbd_close(dev_fd);
+	if (!opts.rep_dump)
+		zbd_close(dev_fd);
+	else
+		close(dev_fd);
 
 	return ret;
 }
