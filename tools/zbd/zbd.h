@@ -31,6 +31,7 @@ enum zbd_cmd {
 	ZBD_CLOSE,
 	ZBD_FINISH,
 	ZBD_DUMP,
+	ZBD_RESTORE,
 };
 
 /*
@@ -71,5 +72,6 @@ int zbd_open_dump(struct zbd_opts *opts);
 int zbd_dump_report_zones(int fd, struct zbd_opts *opts,
 			  struct zbd_zone *zones, unsigned int *nr_zones);
 int zbd_dump(int fd, struct zbd_opts *opts);
+int zbd_restore(int fd, struct zbd_opts *opts);
 
 #endif /* _ZBD_TOOL_H_ */

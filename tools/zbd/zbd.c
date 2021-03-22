@@ -182,6 +182,7 @@ static struct zbd_action zact[] = {
 	{ zbd_mgmt,	O_RDWR	 },	/* ZBD_CLOSE */
 	{ zbd_mgmt,	O_RDWR	 },	/* ZBD_FINISH */
 	{ zbd_dump,	O_RDONLY },	/* ZBD_DUMP */
+	{ zbd_restore,	O_RDWR | O_DIRECT },	/* ZBD_RESTORE */
 };
 
 static void zbd_print_dev_info(struct zbd_opts *opts)
@@ -231,6 +232,8 @@ static int zbd_usage(char *cmd)
 	       "  finish : Finish zone(s) of a device\n"
 	       "  dump   : Dump a device zone information and zone data to\n"
 	       "           files (see -d and -f options).\n"
+	       "  restore : Restore a device zones status and data from dump\n"
+	       "            files (see -d and -f options).\n"
 	       "Common options:\n"
 	       "  -v		   : Verbose mode (for debug)\n"
 	       "  -i		   : Display device information\n"
@@ -294,6 +297,8 @@ int main(int argc, char **argv)
 		opts.cmd = ZBD_FINISH;
 	} else if (strcmp(argv[1], "dump") == 0) {
 		opts.cmd = ZBD_DUMP;
+	} else if (strcmp(argv[1], "restore") == 0) {
+		opts.cmd = ZBD_RESTORE;
 	} else {
 		fprintf(stderr, "Invalid command \"%s\"\n", argv[1]);
 		return 1;
@@ -393,7 +398,7 @@ int main(int argc, char **argv)
 			}
 
 		/*
-		 * Dump command options.
+		 * Dump and restore command options.
 		 */
 		} else if (strcmp(argv[i], "-d") == 0) {
 
@@ -487,6 +492,8 @@ int main(int argc, char **argv)
 		zbd_print_dev_info(&opts);
 
 	ret = zact[opts.cmd].action(dev_fd, &opts);
+	if (ret)
+		ret = 1;
 
 out:
 	if (!opts.rep_dump)
