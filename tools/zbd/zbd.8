@@ -24,6 +24,11 @@ The
 argument must be the pathname of the target zoned block device.
 
 .SH COMMANDS
+
+By default, all commands will operate from the zone at device offset 0 and
+operate on all zones. The common options \fB-ofst\fP and \fB-len\fP can be
+used to modify the operation range of commands.
+
 .SS report
 The command \fBzbd report\fP is used to obtain and display the device zone
 information.
@@ -86,10 +91,39 @@ The command \fBzbd close\fP is used to close one or more zones.
 The command \fBzbd finish\fP is used to finish (transition to full) one
 or more zones.
 
+.SS dump
+Save the zone information and zone data of a zoned device to files. The
+files are by default saved in the current working directory. A different
+output path can be specified using the option \fB-d\fP. The file names are
+prefixed by default using the device base name. The device zone information
+is saved in the file \fI<devname>_zone_info.dump\fP and the device zone data
+is saved in the file \fI<devname>_zone_data.dump\fP. The file name prefix
+can be changed using the option \fB-f\fP.
+
 .PP
-By default, all commands will operate from the zone at device offset 0 and
-operate on all zones. Options may be used to modify this behavior as
-explained below.
+The \fBdump\fP command will save the data of all conventional zones and the
+written data of all sequential zones in the operation range. The options
+\fB-ofst\fP and \fB-len\fP can be used to limit in size the operation range.
+
+.PP
+The zone information file always saves zone information for all zones of the
+device, regardless of the specified operation range. This file can be specified
+in place of a device name with the \fBreport\fP command to inspect its content.
+
+.SS restore
+Set a zoned block device zone status and zone data according to the zone
+information and zoned data saved in files generated using the \fBdump\fP
+command. The resulting state of the target device will be identical to that
+of the device used to generate the dump files. The \fBrestore\fP command
+will only operate on the zone range that was used with the \fBdump\fP
+command. The target zoned block device must be compatible with the zoned
+block device used as the source for the dump operation. That is, the target
+device must have the same capacity and zone configuration (zone type, zone
+size and zone capacity) as the source device.
+
+.PP
+The path and name prefix of the dump files to use for restoring a device
+can be changed using the options \fB-d\fP and \fB-f\fP.
 
 .SH OPTIONS
 Options applicable to all commands are as follows.
