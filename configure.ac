@@ -2,7 +2,7 @@
 #
 # SPDX-FileCopyrightText: 2020 Western Digital Corporation or its affiliates.
 
-AC_INIT([libzbd], [1.2.0],
+AC_INIT([libzbd], [1.3.0],
 	[damien.lemoal@wdc.com, niklas.cassel@wdc.com],
 	[libzbd], [https://github.com/westerndigitalcorporation/libzbd])
 AC_CONFIG_AUX_DIR([build-aux])
