@@ -17,20 +17,15 @@ rpmdir = $(abs_top_builddir)/rpmbuild
 EXTRA_DIST += libzbd.spec
 RPMARCH=`$(RPM) --eval %_target_cpu`
 
-spec: libzbd.spec.in
-	@echo "Generating rpm spec file..."
-	@echo "Version:        $(PACKAGE_VERSION)" > libzbd.spec
-	@cat libzbd.spec.in | grep -v '# ' >> libzbd.spec
-
-rpm: spec dist
+rpm: dist
 	@echo "Building RPM packages..."
 	@mkdir -p $(rpmdir)
-	$(RPMBUILD) -ta --clean -D "_topdir $(rpmdir)" libzbd-$(PACKAGE_VERSION).tar.gz
+	@mv libzbd-$(PACKAGE_VERSION).tar.gz v$(PACKAGE_VERSION).tar.gz
+	$(RPMBUILD) -ta --clean -D "_topdir $(rpmdir)" v$(PACKAGE_VERSION).tar.gz
 	@mv -f $(rpmdir)/RPMS/$(RPMARCH)/*.rpm $(abs_top_builddir)
 	@mv -f $(rpmdir)/SRPMS/*.rpm $(abs_top_builddir)
 	@rm -rf $(rpmdir)
-	@rm -f libzbd-$(PACKAGE_VERSION).tar.gz
-	@rm -f libzbd.spec
+	@rm -f v$(PACKAGE_VERSION).tar.gz
 else
 rpm:
 	@echo "To build RPM packages, run configure with --enable-rpm"

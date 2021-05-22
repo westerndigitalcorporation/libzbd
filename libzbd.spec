@@ -1,35 +1,32 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 #
 # Copyright (c) 2020 Western Digital Corporation or its affiliates.
+Name:		libzbd
+Version:	1.3.0
+Release:	1%{?dist}
+Summary:	A library to control zoned block devices
 
-Name:           libzbd
-Release:        1%{?dist}
-Summary:        A library to control zoned block devices
-Group:		System Environment/Libraries
-License:        LGPLv3
-URL:		https://github.com/westerndigitalcorporation/libzbd
-Source:         %{name}-%{version}.tar.gz
+License:	LGPLv3+ and GPLv3+
+URL:		https://github.com/westerndigitalcorporation/%{name}
+Source0:	https://github.com/westerndigitalcorporation/%{name}/archive/refs/tags/v%{version}.tar.gz
 
-BuildRequires:  autoconf
-BuildRequires:  autoconf-archive
-BuildRequires:  automake
-BuildRequires:  libtool
-BuildRequires:  gcc
+BuildRoot:	%{_topdir}/BUILDROOT/
+BuildRequires:	autoconf,autoconf-archive,automake,libtool
 
 %description
-libzbd is a simple library providing functions simplifying the management and
-use of zoned block devices using the kernel provided ioctl interface.
+libzbd is a library providing functions simplifying the management and
+use of zoned block devices using the kernel ioctl interface defined in
+/usr/include/linux/blkzoned.h.
 
 %package devel
 Summary: Development header files for libzbd
-Group: Development/System
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
 This package provides development header files for libzbd.
 
 %prep
-%setup
+%autosetup
 
 %build
 sh autogen.sh
@@ -56,3 +53,9 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %{_includedir}/*
 %{_libdir}/pkgconfig
 
+%license LICENSES/LGPL-3.0-or-later.txt LICENSES/GPL-3.0-or-later.txt
+%doc README.md
+
+%changelog
+* Sat May 22 2021 Damien Le Moal <damien.lemoal@wdc.com> 1.3.0-1
+- Version 1.3.0 initial package

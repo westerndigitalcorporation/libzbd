@@ -25,7 +25,6 @@ tools/gzbd-viewer
 rpmbuild
 *.tar.gz
 *.rpm
-*.spec
 
 # Debian packages build files and directories
 debbuild
