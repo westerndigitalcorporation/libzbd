@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2020 Western Digital Corporation or its affiliates.
 Name:		libzbd
-Version:	1.3.0
+Version:	1.4.0
 Release:	1%{?dist}
 Summary:	A library to control zoned block devices
 
@@ -57,5 +57,5 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 %doc README.md
 
 %changelog
-* Sat May 22 2021 Damien Le Moal <damien.lemoal@wdc.com> 1.3.0-1
-- Version 1.3.0 initial package
+* Sat May 22 2021 Damien Le Moal <damien.lemoal@wdc.com> 1.4.0-1
+- Version 1.4.0 initial package
