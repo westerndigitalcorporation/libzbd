@@ -13,12 +13,9 @@
 *.out
 *.dump
 
-zbd
-!tools/zbd
-gzbd
-!tools/gzbd
-gzbd-viewer
-!tools/gzbd-viewer
+tools/zbd
+tools/gzbd
+tools/gzbd-viewer
 
 # Dependency files
 .depfile
@@ -55,6 +52,6 @@ include/config.h
 include/stamp-h1
 .deps
 libtool
-libzbd.pc
+lib/libzbd.pc
 .libs
 .dirstamp

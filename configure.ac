@@ -67,9 +67,10 @@ AS_IF([test "x$enable_gui" != "xno"],
       [AM_CONDITIONAL([BUILD_GUI], false)])
 
 AC_CONFIG_FILES([
-	libzbd.pc
+	lib/libzbd.pc
+	lib/Makefile
+	tools/Makefile
 	Makefile
 ])
 
 AC_OUTPUT
-

@@ -4,9 +4,9 @@
 
 bin_PROGRAMS += zbd
 zbd_SOURCES = \
-	tools/zbd/zbd.c \
-	tools/zbd/zbd_dump.c \
-	tools/zbd/zbd.h
+	cli/zbd.c \
+	cli/zbd_dump.c \
+	cli/zbd.h
 zbd_LDADD = $(libzbd_ldadd)
 
-dist_man8_MANS += tools/zbd/zbd.8
+dist_man8_MANS += cli/zbd.8

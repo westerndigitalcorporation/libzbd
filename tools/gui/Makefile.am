@@ -4,12 +4,12 @@
 
 bin_PROGRAMS += gzbd
 gzbd_SOURCES = \
-	tools/gzbd/gzbd.c \
-	tools/gzbd/gzbd_if.c \
-	tools/gzbd/gzbd_if_dev.c \
-	tools/gzbd/gzbd.h
+	gui/gzbd.c \
+	gui/gzbd_if.c \
+	gui/gzbd_if_dev.c \
+	gui/gzbd.h
 
 gzbd_CFLAGS = $(CFLAGS) $(GTK_CFLAGS)
 gzbd_LDADD = $(libzbd_ldadd) $(GTK_LIBS)
 
-dist_man8_MANS += tools/gzbd/gzbd.8
+dist_man8_MANS += gui/gzbd.8
