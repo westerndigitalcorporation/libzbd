@@ -177,10 +177,10 @@ struct zbd_action {
 
 static struct zbd_action zact[] = {
 	{ zbd_report,	O_RDONLY },	/* ZBD_REPORT */
-	{ zbd_mgmt,	O_RDWR	 },	/* ZBD_RESET */
-	{ zbd_mgmt,	O_RDWR	 },	/* ZBD_OPEN */
-	{ zbd_mgmt,	O_RDWR	 },	/* ZBD_CLOSE */
-	{ zbd_mgmt,	O_RDWR	 },	/* ZBD_FINISH */
+	{ zbd_mgmt,	O_WRONLY },	/* ZBD_RESET */
+	{ zbd_mgmt,	O_WRONLY },	/* ZBD_OPEN */
+	{ zbd_mgmt,	O_WRONLY },	/* ZBD_CLOSE */
+	{ zbd_mgmt,	O_WRONLY },	/* ZBD_FINISH */
 	{ zbd_dump,	O_RDONLY },	/* ZBD_DUMP */
 	{ zbd_restore,	O_RDWR | O_DIRECT },	/* ZBD_RESTORE */
 };
