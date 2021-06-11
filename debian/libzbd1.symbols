@@ -1,4 +1,4 @@
-libzbd-1.2.0.so libzbd1 #MINVER#
+libzbd-1.4.0.so libzbd1 #MINVER#
  ZBD_GLOBAL@ZBD_GLOBAL 1.1.0
  zbd_close@ZBD_GLOBAL 1.1.0
  zbd_device_is_zoned@ZBD_GLOBAL 1.1.0
