@@ -5,20 +5,20 @@ Upstream-Contact: Damien Le Moal <damien.lemoal@wdc.com
 Source: https://github.com/westerndigitalcorporation/libzbd
 
 Files:     *
-Copyright: 2020, Western Digital Corporation or its affiliates
+Copyright: 2020, 2021, Western Digital Corporation or its affiliates
 License:   GPL-3.0-or-later
 
 Files:     Makefile.am
            autogen.sh
            configure.ac
-           exports
+           lib/exports
            include/libzbd/zbd.h
-           lib/Makemodule.am
+           lib/Makefile.am
            lib/zbd.c
            lib/zbd.h
            lib/zbd_utils.c
-           libzbd.pc.in
-           libzbd.spec.in
+           lib/libzbd.pc.in
+           libzbd.spec
 Copyright: 2020, Western Digital Corporation or its affiliates
 License:   LGPL-3.0-or-later
 
