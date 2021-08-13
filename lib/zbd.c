@@ -720,7 +720,7 @@ int zbd_zones_operation(int fd, enum zbd_zone_op op, off_t ofst, off_t len)
 			return -1;
 		}
 #else
-		zbd_error("BLKCLOSEZONE ioctl is not supported\n");
+		zbd_error("BLKOPENZONE ioctl is not supported\n");
 		errno = -ENOTSUP;
 		return -1;
 #endif
@@ -750,7 +750,7 @@ int zbd_zones_operation(int fd, enum zbd_zone_op op, off_t ofst, off_t len)
 			return -1;
 		}
 #else
-		zbd_error("BLKCLOSEZONE ioctl is not supported\n");
+		zbd_error("BLKFINISHZONE ioctl is not supported\n");
 		errno = -ENOTSUP;
 		return -1;
 #endif
