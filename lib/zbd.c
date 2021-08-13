@@ -407,8 +407,11 @@ int zbd_open(const char *filename, int flags, struct zbd_info *info)
 	return fd;
 
 err:
-	if (fd >= 0)
+	if (fd >= 0) {
 		close(fd);
+		fd = -1;
+	}
+
 	free(path);
 
 	return fd;
