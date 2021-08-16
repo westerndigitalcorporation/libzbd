@@ -27,6 +27,6 @@ libzbd_la_SOURCES = $(CFILES) $(HFILES)
 libzbd_la_CFLAGS = $(AM_CFLAGS) -fPIC
 libzbd_la_LDFLAGS = \
         -Wl,--version-script,exports \
-	-release '$(PACKAGE_VERSION)'
+	-version-number @LIBZBD_VERSION_LT@
 
 
