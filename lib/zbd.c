@@ -404,6 +404,8 @@ int zbd_open(const char *filename, int flags, struct zbd_info *info)
 	if (info)
 		memcpy(info, zbdi, sizeof(struct zbd_info));
 
+	free(path);
+
 	return fd;
 
 err:
