@@ -670,6 +670,26 @@ out:
 	return 0;
 }
 
+/*
+ * BLKOPENZONE, BLKCLOSEZONE and BLKFINISHZONE ioctl commands
+ * were introduced with kernel 5.5. If they are not defined on the
+ * current system, manually define these operations here to generate
+ * code portable to newer kernels.
+ */
+#ifndef BLKOPENZONE
+#define BLKOPENZONE	_IOW(0x12, 134, struct blk_zone_range)
+#endif
+#ifndef BLKCLOSEZONE
+#define BLKCLOSEZONE	_IOW(0x12, 135, struct blk_zone_range)
+#endif
+#ifndef BLKFINISHZONE
+#define BLKFINISHZONE	_IOW(0x12, 136, struct blk_zone_range)
+#endif
+
+#ifndef ENOIOCTLCMD
+#define ENOIOCTLCMD	515
+#endif
+
 /**
  * zbd_zone_operation - Execute an operation on a zone
  */
@@ -678,6 +698,8 @@ int zbd_zones_operation(int fd, enum zbd_zone_op op, off_t ofst, off_t len)
 	struct zbd_info *zbdi = zbd_get_fd(fd);
 	unsigned long long zone_size_mask, end;
 	struct blk_zone_range range;
+	const char *ioctl_name;
+	unsigned long ioctl_op;
 	int ret;
 
 	if (!zbdi) {
@@ -694,73 +716,48 @@ int zbd_zones_operation(int fd, enum zbd_zone_op op, off_t ofst, off_t len)
 	if (end > zbdi->nr_sectors)
 		end = zbdi->nr_sectors;
 
+	/* Check the operation */
+	switch (op) {
+	case ZBD_OP_RESET:
+		ioctl_name = "BLKRESETZONE";
+		ioctl_op = BLKRESETZONE;
+		break;
+	case ZBD_OP_OPEN:
+		ioctl_name = "BLKOPENZONE";
+		ioctl_op = BLKOPENZONE;
+		break;
+	case ZBD_OP_CLOSE:
+		ioctl_name = "BLKCLOSEZONE";
+		ioctl_op = BLKCLOSEZONE;
+		break;
+	case ZBD_OP_FINISH:
+		ioctl_name = "BLKFINISHZONE";
+		ioctl_op = BLKFINISHZONE;
+		break;
+	default:
+		zbd_error("Invalid zone operation 0x%x\n", op);
+		errno = EINVAL;
+		return -1;
+	}
+
 	ofst = (ofst & (~zone_size_mask)) >> SECTOR_SHIFT;
 	if ((unsigned long long)ofst >= zbdi->nr_sectors ||
 	    end == (unsigned long long)ofst)
 		return 0;
 
+	/* Execute the operation */
 	range.sector = ofst;
 	range.nr_sectors = end - ofst;
-
-	/* Execute the operation */
-	switch (op) {
-	case ZBD_OP_RESET:
-		ret = ioctl(fd, BLKRESETZONE, &range);
-		if (ret != 0){
-			zbd_error("zone operation 0x%x failed %d (%s)\n",
-				  op, errno, strerror(errno));
-			return -1;
+	ret = ioctl(fd, ioctl_op, &range);
+	if (ret != 0) {
+		if (errno == ENOIOCTLCMD || errno == ENOTTY) {
+			zbd_error("ioctl %s is not supported\n",
+				  ioctl_name);
+			errno = ENOTSUP;
+		} else {
+			zbd_error("ioctl %s failed %d (%s)\n",
+				  ioctl_name, errno, strerror(errno));
 		}
-		break;
-
-	case ZBD_OP_OPEN:
-#ifdef BLKOPENZONE
-		ret = ioctl(fd, BLKOPENZONE, &range);
-		if (ret != 0){
-			zbd_error("zone operation 0x%x failed %d (%s)\n",
-				  op, errno, strerror(errno));
-			return -1;
-		}
-#else
-		zbd_error("BLKOPENZONE ioctl is not supported\n");
-		errno = -ENOTSUP;
-		return -1;
-#endif
-		break;
-
-	case ZBD_OP_CLOSE:
-#ifdef BLKCLOSEZONE
-		ret = ioctl(fd, BLKCLOSEZONE, &range);
-		if (ret != 0){
-			zbd_error("zone operation 0x%x failed %d (%s)\n",
-				  op, errno, strerror(errno));
-			return -1;
-		}
-#else
-		zbd_error("BLKCLOSEZONE ioctl is not supported\n");
-		errno = -ENOTSUP;
-		return -1;
-#endif
-		break;
-
-	case ZBD_OP_FINISH:
-#ifdef BLKFINISHZONE
-		ret = ioctl(fd, BLKFINISHZONE, &range);
-		if (ret != 0){
-			zbd_error("zone operation 0x%x failed %d (%s)\n",
-				  op, errno, strerror(errno));
-			return -1;
-		}
-#else
-		zbd_error("BLKFINISHZONE ioctl is not supported\n");
-		errno = -ENOTSUP;
-		return -1;
-#endif
-		break;
-
-	default:
-		zbd_error("Invalid zone operation 0x%x\n", op);
-		errno = -EINVAL;
 		return -1;
 	}
 
