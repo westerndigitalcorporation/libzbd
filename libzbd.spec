@@ -11,7 +11,12 @@ URL:		https://github.com/westerndigitalcorporation/%{name}
 Source0:	https://github.com/westerndigitalcorporation/%{name}/archive/refs/tags/v%{version}.tar.gz
 
 BuildRoot:	%{_topdir}/BUILDROOT/
-BuildRequires:	autoconf,autoconf-archive,automake,libtool
+BuildRequires:	autoconf
+BuildRequires:	autoconf-archive
+BuildRequires:	automake
+BuildRequires:	libtool
+BuildRequires:	make
+BuildRequires:	gcc
 
 %description
 libzbd is a library providing functions simplifying the management and
@@ -20,6 +25,7 @@ use of zoned block devices using the kernel ioctl interface defined in
 
 %package devel
 Summary: Development header files for libzbd
+
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
