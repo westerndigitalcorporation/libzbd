@@ -8,9 +8,9 @@ Summary:	A library to control zoned block devices
 
 License:	LGPLv3+ and GPLv3+
 URL:		https://github.com/westerndigitalcorporation/%{name}
-Source0:	https://github.com/westerndigitalcorporation/%{name}/archive/refs/tags/v%{version}.tar.gz
+Source0:	%{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-BuildRoot:	%{_topdir}/BUILDROOT/
+BuildRequires:	gtk3-devel
 BuildRequires:	autoconf
 BuildRequires:	autoconf-archive
 BuildRequires:	automake
@@ -23,13 +23,30 @@ libzbd is a library providing functions simplifying the management and
 use of zoned block devices using the kernel ioctl interface defined in
 /usr/include/linux/blkzoned.h.
 
+# Development headers package
 %package devel
 Summary: Development header files for libzbd
-
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
 This package provides development header files for libzbd.
+
+# Command line tools package
+%package tools
+Summary: Command line tools using libzbd
+Requires: %{name}%{?_isa} = %{version}-%{release}
+
+%description tools
+This package provides command line tools using libzbd.
+
+# Graphic tools package
+%package gtk-tools
+Summary: GTK tools using libzbd
+Requires: %{name}%{?_isa} = %{version}-%{release}
+Requires: gtk3
+
+%description gtk-tools
+This package provides command line tools using libzbd.
 
 %prep
 %autosetup
@@ -51,16 +68,24 @@ find $RPM_BUILD_ROOT -name '*.la' -delete
 
 %files
 %{_libdir}/*
-%{_bindir}/*
-%{_mandir}/man8/*
 %exclude %{_libdir}/pkgconfig
+%license LICENSES/LGPL-3.0-or-later.txt
+%doc README.md
 
 %files devel
 %{_includedir}/*
 %{_libdir}/pkgconfig
+%license LICENSES/LGPL-3.0-or-later.txt
 
-%license LICENSES/LGPL-3.0-or-later.txt LICENSES/GPL-3.0-or-later.txt
-%doc README.md
+%files tools
+%{_bindir}/zbd
+%{_mandir}/man8/zbd.*
+%license LICENSES/GPL-3.0-or-later.txt
+
+%files gtk-tools
+%{_bindir}/gz*
+%{_mandir}/man8/gz*
+%license LICENSES/GPL-3.0-or-later.txt
 
 %changelog
 * Tue Aug 17 2021 Damien Le Moal <damien.lemoal@wdc.com> 1.5.0-1
