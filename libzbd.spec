@@ -1,6 +1,3 @@
-# SPDX-License-Identifier: LGPL-3.0-or-later
-#
-# Copyright (c) 2020 Western Digital Corporation or its affiliates.
 Name:		libzbd
 Version:	1.5.0
 Release:	1%{?dist}
@@ -20,8 +17,7 @@ BuildRequires:	gcc
 
 %description
 libzbd is a library providing functions simplifying the management and
-use of zoned block devices using the kernel ioctl interface defined in
-/usr/include/linux/blkzoned.h.
+use of zoned block devices using the kernel ioctl interface.
 
 # Development headers package
 %package devel
@@ -32,21 +28,20 @@ Requires: %{name}%{?_isa} = %{version}-%{release}
 This package provides development header files for libzbd.
 
 # Command line tools package
-%package tools
+%package cli-tools
 Summary: Command line tools using libzbd
 Requires: %{name}%{?_isa} = %{version}-%{release}
 
-%description tools
+%description cli-tools
 This package provides command line tools using libzbd.
 
 # Graphic tools package
 %package gtk-tools
 Summary: GTK tools using libzbd
 Requires: %{name}%{?_isa} = %{version}-%{release}
-Requires: gtk3
 
 %description gtk-tools
-This package provides command line tools using libzbd.
+This package provides GTK-based graphical tools using libzbd.
 
 %prep
 %autosetup
@@ -57,36 +52,38 @@ sh autogen.sh
 %make_build
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT
-make install PREFIX=%{_prefix} DESTDIR=$RPM_BUILD_ROOT 
-chmod -x $RPM_BUILD_ROOT%{_mandir}/man8/*.8
+%make_install PREFIX=%{_prefix}
+chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man8/*.8*
 
-find $RPM_BUILD_ROOT -name '*.la' -delete
+find ${RPM_BUILD_ROOT} -name '*.la' -delete
 
 %ldconfig_scriptlets
 
 %files
-%{_libdir}/*
-%exclude %{_libdir}/pkgconfig
+%{_libdir}/*.so.*
+%exclude %{_libdir}/*.a
+%exclude %{_libdir}/pkgconfig/*.pc
 %license LICENSES/LGPL-3.0-or-later.txt
 %doc README.md
 
 %files devel
 %{_includedir}/*
-%{_libdir}/pkgconfig
+%{_libdir}/*.so
+%{_libdir}/pkgconfig/*.pc
 %license LICENSES/LGPL-3.0-or-later.txt
 
-%files tools
+%files cli-tools
 %{_bindir}/zbd
-%{_mandir}/man8/zbd.*
+%{_mandir}/man8/zbd.8*
 %license LICENSES/GPL-3.0-or-later.txt
 
 %files gtk-tools
-%{_bindir}/gz*
-%{_mandir}/man8/gz*
+%{_bindir}/gzbd
+%{_bindir}/gzbd-viewer
+%{_mandir}/man8/gzbd.8*
+%{_mandir}/man8/gzbd-viewer.8*
 %license LICENSES/GPL-3.0-or-later.txt
 
 %changelog
-* Tue Aug 17 2021 Damien Le Moal <damien.lemoal@wdc.com> 1.5.0-1
+* Tue Dec 07 2021 Damien Le Moal <damien.lemoal@wdc.com> 1.5.0-1
 - Version 1.5.0 packages
