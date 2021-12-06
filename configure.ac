@@ -2,7 +2,7 @@
 #
 # SPDX-FileCopyrightText: 2020 Western Digital Corporation or its affiliates.
 
-AC_INIT([libzbd], [1.5.0],
+AC_INIT([libzbd], [2.0.0],
 	[damien.lemoal@wdc.com, niklas.cassel@wdc.com],
 	[libzbd], [https://github.com/westerndigitalcorporation/libzbd])
 
