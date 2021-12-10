@@ -8,7 +8,7 @@ global:
 	zbd_device_is_zoned;
 	zbd_open;
 	zbd_close;
-	zbd_get_device_info;
+	zbd_get_info;
 	zbd_report_zones;
 	zbd_list_zones;
 	zbd_zones_operation;
