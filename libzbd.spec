@@ -1,5 +1,5 @@
 Name:		libzbd
-Version:	2.0.0
+Version:	2.0.1
 Release:	1%{?dist}
 Summary:	A library to control zoned block devices
 
@@ -85,5 +85,5 @@ find ${RPM_BUILD_ROOT} -name '*.la' -delete
 %license LICENSES/GPL-3.0-or-later.txt
 
 %changelog
-* Tue Dec 07 2021 Damien Le Moal <damien.lemoal@wdc.com> 2.0.0-1
-- Version 2.0.0 packages
+* Sat Dec 11 2021 Damien Le Moal <damien.lemoal@wdc.com> 2.0.1-1
+- Version 2.0.1 packages
