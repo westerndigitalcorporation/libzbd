@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=gzbd-viewer
+Comment=Display the zone state of a Zoned Block Device
+Keywords=disk;drive;harddisk;hdd;disc;smr;SMR;ssd;zns;ZNS;
+Exec=pkexec --disable-internal-agent "@bindir@/gzbd-viewer"
+Icon=gzbd-viewer
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;System;

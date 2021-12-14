@@ -59,6 +59,7 @@ chmod -x ${RPM_BUILD_ROOT}%{_mandir}/man8/*.8*
 find ${RPM_BUILD_ROOT} -name '*.la' -delete
 
 desktop-file-validate %{buildroot}/%{_datadir}/applications/gzbd.desktop
+desktop-file-validate %{buildroot}/%{_datadir}/applications/gzbd-viewer.desktop
 
 %ldconfig_scriptlets
 
@@ -86,6 +87,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/gzbd.desktop
 %{_datadir}/applications/gzbd.desktop
 %{_datadir}/pixmaps/gzbd.png
 %{_bindir}/gzbd-viewer
+%{_datadir}/polkit-1/actions/org.gnome.gzbd-viewer.policy
+%{_datadir}/applications/gzbd-viewer.desktop
+%{_datadir}/pixmaps/gzbd-viewer.png
 %{_mandir}/man8/gzbd.8*
 %{_mandir}/man8/gzbd-viewer.8*
 %license LICENSES/GPL-3.0-or-later.txt
