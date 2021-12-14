@@ -17,6 +17,10 @@ tools/zbd
 tools/gzbd
 tools/gzbd-viewer
 
+# Generated files
+*.desktop
+*.policy
+
 # Dependency files
 .depfile
 .depend
