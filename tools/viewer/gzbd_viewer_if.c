@@ -379,6 +379,48 @@ static void gzv_if_get_da_size(unsigned int *w, unsigned int *h)
 		*h = 60;
 }
 
+void gzv_if_create_window(void)
+{
+	if (gzv.window)
+		return;
+
+	gzv.window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(gzv.window),
+			     "Zoned Block Device Zone State");
+	gtk_container_set_border_width(GTK_CONTAINER(gzv.window), 10);
+
+	g_signal_connect((gpointer) gzv.window, "delete-event",
+			 G_CALLBACK(gzv_if_delete_cb),
+			 NULL);
+}
+
+void gzv_if_err(const char *msg, const char *fmt, ...)
+{
+	GtkWidget *dialog;
+
+	dialog = gtk_message_dialog_new(GTK_WINDOW(gzv.window),
+			GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			GTK_MESSAGE_ERROR,
+			GTK_BUTTONS_OK,
+			"%s", msg);
+
+	if (fmt) {
+		va_list args;
+		char secondary[256];
+
+		va_start(args, fmt);
+		vsnprintf(secondary, 255, fmt, args);
+		va_end(args);
+
+		gtk_message_dialog_format_secondary_text
+			(GTK_MESSAGE_DIALOG(dialog),
+			 "%s", secondary);
+	}
+
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+}
+
 void gzv_if_create(void)
 {
 	GtkWidget *top_vbox, *vbox, *frame, *hbox, *scrollbar, *grid, *da;
@@ -398,15 +440,6 @@ void gzv_if_create(void)
 	gdk_rgba_parse(&gzv.color_oi, "DeepSkyBlue");	/* Imp open zones */
 	gdk_rgba_parse(&gzv.color_cl, "DarkOrange");	/* Closed zones */
 	gdk_rgba_parse(&gzv.color_of, "Grey");		/* Offline zones */
-
-	/* Window */
-	gzv.window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(gzv.window), "Zoned Block Device Zone State");
-	gtk_container_set_border_width(GTK_CONTAINER(gzv.window), 10);
-
-	g_signal_connect((gpointer) gzv.window, "delete-event",
-			 G_CALLBACK(gzv_if_delete_cb),
-			 NULL);
 
 	/* Top vbox */
 	top_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
