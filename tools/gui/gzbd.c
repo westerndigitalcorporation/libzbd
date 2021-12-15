@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 	gboolean init_ret;
 	gboolean verbose = FALSE;
 	GError *error = NULL;
-	int i;
+	int i, ret = 0;
 	GOptionEntry options[] = {
 		{
 			"verbose", 'v', 0,
@@ -147,6 +147,15 @@ int main(int argc, char **argv)
 	/* Create GUI */
 	dz_if_create();
 
+	/* Check user credentials */
+	if (getuid() != 0) {
+		dz_if_err("Root privileges are required for running gzbd",
+			  "Since gzbd is capable of erasing vast amounts of"
+			  " data, only root may run it.");
+		ret = 1;
+		goto out;
+	}
+
 	/* Add devices listed on command line */
 	for (i = 1; i < argc; i++)
 		dz_if_add_device(argv[i]);
@@ -154,10 +163,11 @@ int main(int argc, char **argv)
 	/* Main event loop */
 	gtk_main();
 
+out:
 	/* Cleanup GUI */
 	dz_if_destroy();
 
-	return 0;
+	return ret;
 }
 
 /*
@@ -319,6 +329,7 @@ static GtkWidget *dz_cmd_dialog(char *msg)
 
 	return dialog;
 }
+
 
 /*
  * Open a device.
