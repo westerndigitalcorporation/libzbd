@@ -25,6 +25,32 @@ static void dz_if_close_cb(GtkWidget *widget, gpointer user_data);
 static void dz_if_close_page_cb(GtkWidget *widget, gpointer user_data);
 static void dz_if_exit_cb(GtkWidget *widget, gpointer user_data);
 
+void dz_if_err(const char *msg, const char *fmt, ...)
+{
+	GtkWidget *dialog;
+
+	dialog = gtk_message_dialog_new(GTK_WINDOW(dz.window),
+			GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			GTK_MESSAGE_ERROR,
+			GTK_BUTTONS_OK,
+			"%s", msg);
+	if (fmt) {
+		va_list args;
+		char secondary[256];
+
+		va_start(args, fmt);
+		vsnprintf(secondary, 255, fmt, args);
+		va_end(args);
+
+		gtk_message_dialog_format_secondary_text
+			(GTK_MESSAGE_DIALOG(dialog),
+			 "%s", secondary);
+	}
+
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+}
+
 void dz_if_create(void)
 {
 	GtkWidget *toolbar;
@@ -114,7 +140,6 @@ void dz_if_destroy(void)
 
 void dz_if_add_device(char *dev_path)
 {
-	GtkWidget *dialog;
 	GtkWidget *label;
 	GtkWidget *hbox;
 	GtkWidget *button;
@@ -124,17 +149,8 @@ void dz_if_add_device(char *dev_path)
 
 	/* Open device */
 	dzd = dz_if_dev_open(dev_path);
-	if (!dzd) {
-		dialog = gtk_message_dialog_new(GTK_WINDOW(dz.window),
-						GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-						GTK_MESSAGE_ERROR,
-						GTK_BUTTONS_OK,
-						"Open device %s failed",
-						dev_path);
-		gtk_dialog_run(GTK_DIALOG(dialog));
-		gtk_widget_destroy(dialog);
+	if (!dzd)
 		return;
-	}
 
 	dz_if_hide_nodev();
 

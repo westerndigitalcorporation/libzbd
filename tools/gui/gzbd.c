@@ -337,6 +337,9 @@ dz_dev_t *dz_open(char *path)
 	}
 
 	if (!dzd) {
+		dz_if_err("Too many open devices",
+			  "At most %d devices can be open",
+			  (int)DZ_MAX_DEV);
 		fprintf(stderr, "Too many open devices\n");
 		return NULL;
 	}
@@ -344,8 +347,15 @@ dz_dev_t *dz_open(char *path)
 	/* Open device file */
 	strncpy(dzd->path, path, sizeof(dzd->path) - 1);
 	dzd->dev_fd = zbd_open(dzd->path, O_RDWR | O_LARGEFILE, &dzd->info);
-	if (dzd->dev_fd < 0)
+	if (dzd->dev_fd < 0) {
+		ret = errno;
+		dz_if_err("Open device failed",
+			  "Open %s failed %d (%s)",
+			  dzd->path, ret, strerror(ret));
+		fprintf(stderr, "Open device %s failed %d (%s)\n",
+			dzd->path, ret, strerror(ret));
 		return NULL;
+	}
 
 	dzd->capacity = dzd->info.nr_sectors << 9;
 
@@ -353,6 +363,8 @@ dz_dev_t *dz_open(char *path)
 	if (!dzd->block_size) {
 		dzd->block_size = 1;
 	} else if (dzd->info.zone_size % dzd->block_size) {
+		dz_if_err("Invalid block size",
+			"The device zone size is not a multiple of the block size");
 		fprintf(stderr, "Invalid block size\n");
 		ret = 1;
 		goto out;
