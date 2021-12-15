@@ -5,7 +5,7 @@ Summary:	A library to control zoned block devices
 
 License:	LGPLv3+ and GPLv3+
 URL:		https://github.com/westerndigitalcorporation/%{name}
-Source0:	%{url}/archive/v%{version}/%{name}-%{version}.tar.gz
+Source0:	%{url}/releases/download/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:	desktop-file-utils
 BuildRequires:	gtk3-devel
