@@ -371,8 +371,8 @@ static void gzv_if_get_da_size(unsigned int *w, unsigned int *h)
 	gdk_monitor_get_geometry(mon, &geom);
 
 	*w = (geom.width - 200) / gzv.nr_col;
-	if (*w > 100)
-		*w = 100;
+	if (*w > 150)
+		*w = 150;
 
 	*h = (geom.height - 200) / gzv.nr_row;
 	if (*h > 60)
