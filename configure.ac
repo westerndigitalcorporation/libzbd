@@ -68,7 +68,7 @@ AC_CHECK_MEMBER([struct blk_zone.capacity],
 # Build GUI tools only if GTK3 is installed and can be detected with pkg-config.
 AC_ARG_ENABLE([gui],
         AS_HELP_STRING([--disable-gui],
-		       [Disable build of GUI tools (gzbd and gzviewer) [default=no]]))
+		       [Disable build of GUI tools (gzbd and gzbd-viewer) [default=no]]))
 AS_IF([test "x$enable_gui" != "xno"],
       [m4_ifdef([PKG_CHECK_MODULES],
 		[PKG_CHECK_MODULES([GTK], [gtk+-3.0], [HAVE_GTK3=1], [HAVE_GTK3=0])],
