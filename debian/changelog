@@ -1,3 +1,33 @@
+libzbd (2.0.2-2) unstable; urgency=medium
+
+  * Source only upload.
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Tue, 15 Feb 2022 22:02:14 +0000
+
+libzbd (2.0.2-1) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Set upstream metadata fields: Bug-Database, Bug-Submit, Repository,
+    Repository-Browse.
+  * Update standards version to 4.6.0, no changes needed.
+
+  [ Sudip Mukherjee ]
+  * New upstream version 2.0.2
+    - Update version for SONAME change.
+    - Update symbols.
+  * Update Standards-Version to 4.6.0.1
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Mon, 14 Feb 2022 14:23:27 +0000
+
+libzbd (1.5.0-1) unstable; urgency=medium
+
+  * Upload to unstable.
+  * New upstream version 1.5.0
+    - Update installed library name.
+    - Update library name in symbols.
+
+ -- Sudip Mukherjee <sudipm.mukherjee@gmail.com>  Wed, 18 Aug 2021 23:00:07 +0100
+
 libzbd (1.4.0-1) experimental; urgency=medium
 
   * New upstream version 1.4.0
