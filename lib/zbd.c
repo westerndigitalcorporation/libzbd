@@ -528,7 +528,7 @@ int zbd_report_zones(int fd, off_t ofst, off_t len, enum zbd_report_option ro,
 	unsigned int nrz, n = 0, i = 0;
 	struct blk_zone *blkz;
 	struct zbd_zone z;
-	int ret;
+	int ret = 0;
 
 	if (!zbdi) {
 		zbd_error("Invalid file descriptor %d\n\n", fd);
