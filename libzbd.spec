@@ -1,5 +1,5 @@
 Name:		libzbd
-Version:	2.0.2
+Version:	2.0.3
 Release:	1%{?dist}
 Summary:	A library to control zoned block devices
 
@@ -95,5 +95,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/gzbd-viewer.desktop
 %license LICENSES/GPL-3.0-or-later.txt
 
 %changelog
+* Wed Mar 23 2022 Damien Le Moal <damien.lemoal@wdc.com> 2.0.3-1
+- Update to version 2.0.3
 * Wed Dec 15 2021 Damien Le Moal <damien.lemoal@wdc.com> 2.0.2-1
 - Update to version 2.0.2
