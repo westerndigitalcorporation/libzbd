@@ -24,6 +24,7 @@ rpm: dist
 	@mv -f $(rpmdir)/RPMS/$(RPMARCH)/*.rpm $(abs_top_builddir)
 	@mv -f $(rpmdir)/SRPMS/*.rpm $(abs_top_builddir)
 	@rm -rf $(rpmdir)
+	@rm -f libzbd-$(PACKAGE_VERSION).tar.gz
 else
 rpm:
 	@echo "Building RPM packages requires rpmbuild and rpm utilities"
