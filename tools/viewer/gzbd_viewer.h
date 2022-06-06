@@ -8,7 +8,6 @@
 #define __GZVIEWER_H__
 
 #include <sys/time.h>
-#include <pthread.h>
 #include <gtk/gtk.h>
 
 #include <libzbd/zbd.h>
