@@ -10,7 +10,6 @@ Source0:	%{url}/releases/download/v%{version}/%{name}-%{version}.tar.gz
 BuildRequires:	desktop-file-utils
 BuildRequires:	gtk3-devel
 BuildRequires:	autoconf
-BuildRequires:	autoconf-archive
 BuildRequires:	automake
 BuildRequires:	libtool
 BuildRequires:	make
