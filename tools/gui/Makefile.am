@@ -14,7 +14,7 @@ gzbd_SOURCES = \
 	gui/gzbd.h
 
 gzbd_CFLAGS = $(CFLAGS) $(GTK_CFLAGS)
-gzbd_LDADD = $(libzbd_ldadd) $(GTK_LIBS)
+gzbd_LDADD = $(libzbd_ldadd) $(GTK_LIBS) -lpthread
 
 dist_man8_MANS += gui/gzbd.8
 
