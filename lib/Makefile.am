@@ -26,7 +26,8 @@ libzbd_la_DEPENDENCIES = exports
 libzbd_la_SOURCES = $(CFILES) $(HFILES)
 libzbd_la_CFLAGS = $(AM_CFLAGS) -fPIC
 libzbd_la_LDFLAGS = \
-        -Wl,--version-script,exports \
+        -lpthread \
+	-Wl,--version-script,exports \
 	-version-number @LIBZBD_VERSION_LT@
 
 

@@ -66,8 +66,8 @@ THAT ARE VENDOR SAMPLES OR NOT PUBLICLY AVAILABLE.
 
 *libzbd* requires the following packages for compilation:
 
+* m4
 * autoconf
-* autoconf-archive
 * automake
 * libtool
 * m4
