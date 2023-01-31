@@ -49,8 +49,7 @@ static gboolean dz_process_signal(GIOChannel *source,
 static void dz_sig_handler(int sig)
 {
 	/* Propagate signal through the pipe */
-	if (write(dz.sig_pipe[1], &sig, sizeof(int)) < 0)
-		printf("Signal %d processing failed\n", sig);
+	write(dz.sig_pipe[1], &sig, sizeof(int));
 }
 
 static void dz_set_signal_handlers(void)
