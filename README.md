@@ -70,7 +70,6 @@ THAT ARE VENDOR SAMPLES OR NOT PUBLICLY AVAILABLE.
 * autoconf
 * automake
 * libtool
-* m4
 * GTK3 and GTK3 development headers (when building the *gzbd* and *gzbd-viewer*
   graphical applications)
 
