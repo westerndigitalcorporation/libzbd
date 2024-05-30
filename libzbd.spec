@@ -1,5 +1,5 @@
-Name:		libzbd
-Version:	2.0.4
+Name:		%{pkg_name}
+Version:	%{pkg_version}
 Release:	1%{?dist}
 Summary:	A library to control zoned block devices
 
